@@ -9,6 +9,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use App\Helpers\UidHelper;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 
 
 class User extends Authenticatable implements JWTSubject
@@ -80,5 +81,10 @@ class User extends Authenticatable implements JWTSubject
     public function refreshTokens()
     {
         return $this->hasMany(RefreshToken::class);
+    }
+
+    public function addresses(): MorphMany
+    {
+        return $this->morphMany(Address::class, 'addressable', 'addressable_type', 'addressable_id', 'uid');
     }
 }
