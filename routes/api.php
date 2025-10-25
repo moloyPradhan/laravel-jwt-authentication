@@ -15,12 +15,18 @@ Route::prefix('auth')->group(function () {
     });
 });
 
-
-
 Route::prefix('users')->group(function () {
     Route::post('/', [AuthController::class, 'register']);
 
     Route::middleware('auth:api')->group(function () {
+        Route::get('addresses', [AddressController::class, 'index']);
         Route::post('addresses', [AddressController::class, 'addUserAddress']);
     });
 });
+
+Route::middleware('auth:api')->group(function () {
+    Route::get('addresses/{uid}', [AddressController::class, 'show']);
+    Route::put('addresses/{uid}', [AddressController::class, 'update']);
+    Route::delete('addresses/{uid}', [AddressController::class, 'destroy']);
+});
+

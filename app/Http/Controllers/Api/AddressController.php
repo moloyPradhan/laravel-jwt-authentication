@@ -17,17 +17,36 @@ class AddressController extends Controller
     /**
      * Get all addresses for authenticated user
      */
-    // public function index(Request $request)
-    // {
-    //     $user = $request->user();
-    //     $user = jwt_user();
-    //     $addresses = $user->addresses()->active()->get();
 
-    //     return response()->json([
-    //         'success' => true,
-    //         'data' => $addresses
-    //     ]);
-    // }
+    public function index(Request $request)
+    {
+        $user      = $request->user();
+        $addresses = $user->addresses()->active()->get();
+
+        $filteredAddresses = $addresses->map(function ($address) {
+            return $address->only([
+                'uid',
+                'label',
+                'address_line_1',
+                'city',
+                'state',
+                'country',
+                'postal_code',
+                'phone',
+                'latitude',
+                'longitude',
+                'is_default'
+            ]);
+        });
+
+        return $this->successResponse(
+            200,
+            'User addresses',
+            [
+                'addresses' => $filteredAddresses
+            ]
+        );
+    }
 
     /**
      * Get addresses for a specific restaurant
@@ -56,6 +75,7 @@ class AddressController extends Controller
     /**
      * Add address for authenticated user
      */
+
     public function addUserAddress(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -156,12 +176,29 @@ class AddressController extends Controller
      */
     public function show(string $uid)
     {
-        $address = Address::with('addressable')->findByUidOrFail($uid);
+        // $address = Address::with('addressable')->findByUidOrFail($uid);
 
-        return response()->json([
-            'success' => true,
-            'data' => $address
-        ]);
+        $address = Address::with('addressable')
+            ->where('uid', $uid)
+            ->firstOrFail();
+
+        return $this->successResponse(
+            200,
+            'Address',
+            $address->only([
+                'uid',
+                'label',
+                'address_line_1',
+                'city',
+                'state',
+                'country',
+                'postal_code',
+                'phone',
+                'latitude',
+                'longitude',
+                'is_default'
+            ])
+        );
     }
 
     /**

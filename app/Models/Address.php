@@ -12,7 +12,7 @@ use App\Helpers\UidHelper;
 
 class Address extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory, SoftDeletes, HasUid;
 
     protected $fillable = [
         'uid',
