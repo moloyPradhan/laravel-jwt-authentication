@@ -26,7 +26,7 @@ trait HasUid
         $maxAttempts = 10;
 
         do {
-            $uid = strtoupper(Str::random($length));
+            $uid = Str::random($length);
             $exists = static::where($this->getUidColumn(), $uid)->exists();
             $attempts++;
 

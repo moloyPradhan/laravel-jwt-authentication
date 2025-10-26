@@ -87,4 +87,9 @@ class User extends Authenticatable implements JWTSubject
     {
         return $this->morphMany(Address::class, 'addressable', 'addressable_type', 'addressable_id', 'uid');
     }
+
+    public function restaurants()
+    {
+        return $this->hasMany(Restaurant::class, 'user_uid', 'uid');
+    }
 }

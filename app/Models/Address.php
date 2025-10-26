@@ -44,17 +44,6 @@ class Address extends Model
         'longitude'  => 'decimal:8',
     ];
 
-    protected static function boot()
-    {
-        parent::boot();
-
-        static::creating(function ($user) {
-            if (empty($user->uid)) {
-                $user->uid = UidHelper::generate(8);
-            }
-        });
-    }
-
     public function addressable(): MorphTo
     {
         return $this->morphTo();
