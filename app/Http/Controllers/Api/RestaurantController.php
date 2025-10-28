@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Validator;
 use App\Traits\ApiResponse;
 use Illuminate\Http\Request;
 use App\Models\Restaurant;
+use App\Models\RestaurantDocument;
 
 class RestaurantController extends Controller
 {
@@ -49,7 +50,7 @@ class RestaurantController extends Controller
 
         if ($validator->fails()) {
             return $this->errorResponse(
-                200,
+                422,
                 'Validation failed',
                 [
                     'errors'  => $validator->errors()
@@ -105,6 +106,62 @@ class RestaurantController extends Controller
             'User Restaurants',
             [
                 'restaurants' => $filteredData
+            ]
+        );
+    }
+
+    public function addRestaurantDocuments(Request $request, string $uid)
+    {
+        // Validate files and types
+        $validator = Validator::make($request->all(), [
+            'fssai'        => 'required|file|mimes:pdf,jpg,jpeg,png',
+            'pan'          => 'required|file|mimes:pdf,jpg,jpeg,png',
+        ]);
+
+        if ($validator->fails()) {
+
+            return $this->errorResponse(
+                422,
+                'Validation failed',
+                $validator->errors()
+            );
+        }
+
+        // Find target restaurant by UID
+        $restaurant = Restaurant::where('uid', $uid)->first();
+        if (!$restaurant) {
+
+            return $this->errorResponse(
+                404,
+                'Restaurant not found',
+                $validator->errors()
+            );
+        }
+
+        // Types to process
+        $types = ['fssai', 'pan'];
+        $documents = [];
+
+        foreach ($types as $type) {
+            if ($request->hasFile($type)) {
+                $file     = $request->file($type);
+                $filePath = $file->store('restaurants/documents', 'public');
+
+                $document = RestaurantDocument::create([
+                    'restaurant_uid' => $restaurant->uid,
+                    'type'           => $type,
+                    'file_path'      => $filePath,
+                ]);
+                $documents[] = $document;
+            }
+        }
+
+
+        return $this->successResponse(
+            200,
+            'Documents uploaded',
+            [
+                'documents' => $documents
             ]
         );
     }
