@@ -8,6 +8,9 @@ use App\Traits\ApiResponse;
 use Illuminate\Http\Request;
 use App\Models\Restaurant;
 use App\Models\RestaurantDocument;
+use App\Models\RestaurantImages;
+
+use Illuminate\Support\Facades\Storage;
 
 class RestaurantController extends Controller
 {
@@ -163,6 +166,73 @@ class RestaurantController extends Controller
             [
                 'documents' => $documents
             ]
+        );
+    }
+
+
+    public function addRestaurantImages(Request $request, string $uid)
+    {
+        // Validate request
+        $validator = Validator::make($request->all(), [
+            'file' => 'required|file|mimes:pdf,jpg,jpeg,png|max:5120', // 5MB limit
+            'for'  => 'required|string|in:banner,front_image,logo,inside_image',
+        ]);
+
+        if ($validator->fails()) {
+            return $this->errorResponse(
+                422,
+                'Validation failed',
+                $validator->errors()
+            );
+        }
+
+        // Find restaurant
+        $restaurant = Restaurant::where('uid', $uid)->first();
+        if (!$restaurant) {
+            return $this->errorResponse(
+                404,
+                'Restaurant not found',
+                []
+            );
+        }
+
+        $file = $request->file('file');
+        $for  = $request->input('for');
+
+        $existingImage = RestaurantImages::where('restaurant_uid', $restaurant->uid)
+            ->where('type', $for)
+            ->first();
+
+        // Store file
+        $filePath = $file->store('restaurants/images', 'public');
+
+        if ($existingImage) {
+            // Delete old file from storage if it exists
+            if (Storage::disk('public')->exists($existingImage->file_path)) {
+                Storage::disk('public')->delete($existingImage->file_path);
+            }
+
+            // Update existing record
+            $existingImage->update([
+                'file_path' => $filePath,
+            ]);
+
+            $image = $existingImage;
+            $message  = 'Image updated successfully';
+        } else {
+            // Create new record
+            $image = RestaurantImages::create([
+                'restaurant_uid' => $restaurant->uid,
+                'type'           => $for,
+                'file_path'      => $filePath,
+            ]);
+            $message = 'Image uploaded successfully';
+        }
+
+        return $this->successResponse(
+            200,
+            $message,
+            ['image' => $image]
         );
     }
 }

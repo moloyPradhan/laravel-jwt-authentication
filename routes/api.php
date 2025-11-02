@@ -36,6 +36,7 @@ Route::prefix('restaurants')->group(function () {
     Route::get('/', [RestaurantController::class, 'index']);
     Route::middleware('auth:api')->group(function () {
         Route::post('/', [RestaurantController::class, 'addRestaurant']);
-        Route::post('{uid}', [RestaurantController::class, 'addRestaurantDocuments']);
+        Route::post('{uid}/documents', [RestaurantController::class, 'addRestaurantDocuments']);
+        Route::post('{uid}/images', [RestaurantController::class, 'addRestaurantImages']);
     });
 });
