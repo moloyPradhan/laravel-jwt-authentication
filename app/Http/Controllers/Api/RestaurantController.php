@@ -18,7 +18,10 @@ class RestaurantController extends Controller
 
     public function index(Request $request)
     {
-        $data = Restaurant::with('user')->get();
+        // Get approved restaurants with related user and images
+        $data = Restaurant::with(['user', 'images', 'addresses'])
+            ->where('status', 'approved')
+            ->get();
 
         $filteredData = $data->map(function ($restaurant) {
             return [
@@ -29,15 +32,29 @@ class RestaurantController extends Controller
                 'description' => $restaurant->description,
                 'status'      => $restaurant->status,
                 'user_name'   => $restaurant->user ? $restaurant->user->name : null,
+                'images'      => $restaurant->images->map(function ($image) {
+                    return [
+                        'type'      => $image->type,
+                        'file_path' => asset('storage/' . $image->file_path),
+                    ];
+                }),
+                'addresses'   => $restaurant->addresses->map(function ($addresses) {
+                    return [
+                        'label'           => ucwords($addresses->label),
+                        'address_line_1'  => ucwords($addresses->address_line_1),
+                        'address_line_2'  => ucwords($addresses->address_line_2),
+                        'city'            => ucwords($addresses->city),
+                        'state'           => ucwords($addresses->state),
+                        'postal_code'     => $addresses->postal_code,
+                    ];
+                }),
             ];
         });
 
         return $this->successResponse(
             200,
-            'All Restaurants',
-            [
-                'restaurants' => $filteredData
-            ]
+            'Approved Restaurants',
+            ['restaurants' => $filteredData]
         );
     }
 
@@ -90,28 +107,46 @@ class RestaurantController extends Controller
 
     public function getRestaurants(Request $request)
     {
-        $user      = $request->user();
-        $data      = $user->restaurants()->get();
+        $user = $request->user();
 
-        $filteredData = $data->map(function ($address) {
-            return $address->only([
-                'uid',
-                'name',
-                'phone',
-                'email',
-                'description',
-                'status',
-            ]);
+        // Eager-load restaurant images to avoid N+1 queries
+        $restaurants = $user->restaurants()
+            ->with('images')
+            ->with('documents')
+            ->get();
+
+        // Format response data
+        $filteredData = $restaurants->map(function ($restaurant) {
+            return [
+                'uid'         => $restaurant->uid,
+                'name'        => $restaurant->name,
+                'phone'       => $restaurant->phone,
+                'email'       => $restaurant->email,
+                'description' => $restaurant->description,
+                'status'      => $restaurant->status,
+                'images'      => $restaurant->images->map(function ($image) {
+                    return [
+                        'type'      => $image->type,
+                        'file_path' => asset('storage/' . $image->file_path),
+                    ];
+                }),
+                'documents' => $restaurant->documents->map(function ($document) {
+                    return [
+                        'type'       => $document->type,
+                        'file_path'  => asset('storage/' . $document->file_path),
+                        'created_at' => $document->created_at
+                    ];
+                })
+            ];
         });
 
         return $this->successResponse(
             200,
             'User Restaurants',
-            [
-                'restaurants' => $filteredData
-            ]
+            ['restaurants' => $filteredData]
         );
     }
+
 
     public function addRestaurantDocuments(Request $request, string $uid)
     {

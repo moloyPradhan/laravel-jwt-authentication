@@ -38,5 +38,6 @@ Route::prefix('restaurants')->group(function () {
         Route::post('/', [RestaurantController::class, 'addRestaurant']);
         Route::post('{uid}/documents', [RestaurantController::class, 'addRestaurantDocuments']);
         Route::post('{uid}/images', [RestaurantController::class, 'addRestaurantImages']);
+        Route::post('{uid}/addresses', [AddressController::class, 'addRestaurantAddress']);
     });
 });

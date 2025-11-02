@@ -37,8 +37,18 @@ class Restaurant extends Model
         return $this->morphOne(Address::class, 'addressable');
     }
 
+    public function addresses()
+    {
+        return $this->morphMany(Address::class, 'addressable', 'addressable_type', 'addressable_id', 'uid');
+    }
+
     public function documents()
     {
-        return $this->hasMany(RestaurantDocument::class);
+        return $this->hasMany(RestaurantDocument::class, 'restaurant_uid', 'uid');
+    }
+
+    public function images()
+    {
+        return $this->hasMany(RestaurantImages::class, 'restaurant_uid', 'uid');
     }
 }

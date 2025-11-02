@@ -72,4 +72,12 @@ class Address extends Model
     {
         return $query->where('is_default', true);
     }
+
+    public function getRestaurantUidAttribute()
+    {
+        if ($this->addressable_type === \App\Models\Restaurant::class && $this->addressable) {
+            return $this->addressable->uid;
+        }
+        return null;
+    }
 }

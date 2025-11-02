@@ -122,54 +122,65 @@ class AddressController extends Controller
     /**
      * Add address for restaurant
      */
-    // public function addRestaurantAddress(Request $request, string $restaurantUid)
-    // {
-    //     $validator = Validator::make($request->all(), [
-    //         'label' => 'nullable|string|max:255',
-    //         'address_line_1' => 'required|string|max:255',
-    //         'address_line_2' => 'nullable|string|max:255',
-    //         'city' => 'required|string|max:100',
-    //         'state' => 'required|string|max:100',
-    //         'country' => 'required|string|max:100',
-    //         'postal_code' => 'required|string|max:20',
-    //         'phone' => 'nullable|string|max:20',
-    //         'latitude' => 'nullable|numeric|between:-90,90',
-    //         'longitude' => 'nullable|numeric|between:-180,180',
-    //         'is_default' => 'boolean',
-    //     ]);
+    public function addRestaurantAddress(Request $request, string $restaurantUid)
+    {
+        $validator = Validator::make($request->all(), [
+            'label'          => 'nullable|string|max:255',
+            'address_line_1' => 'required|string|max:255',
+            'address_line_2' => 'nullable|string|max:255',
+            'city'           => 'required|string|max:100',
+            'state'          => 'required|string|max:100',
+            'country'        => 'required|string|max:100',
+            'postal_code'    => 'required|string|max:20',
+            'phone'          => 'nullable|string|max:20',
+            'latitude'       => 'nullable|numeric|between:-90,90',
+            'longitude'      => 'nullable|numeric|between:-180,180',
+            'is_default'     => 'boolean',
+        ]);
 
-    //     if ($validator->fails()) {
-    //         return response()->json([
-    //             'success' => false,
-    //             'message' => 'Validation failed',
-    //             'errors' => $validator->errors()
-    //         ], 422);
-    //     }
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation failed',
+                'errors' => $validator->errors()
+            ], 422);
+        }
 
-    //     $restaurant = Restaurant::findByUidOrFail($restaurantUid);
+        $restaurant = Restaurant::findByUidOrFail($restaurantUid);
 
-    //     // Check if user owns the restaurant
-    //     $user = jwt_user();
-    //     if ($restaurant->user_id !== $user->id) {
-    //         return response()->json([
-    //             'success' => false,
-    //             'message' => 'Unauthorized to add address for this restaurant'
-    //         ], 403);
-    //     }
+        // Check if user owns the restaurant
+        // $user = jwt_user();
 
-    //     // If this is set as default, unset other default addresses for this restaurant
-    //     if ($request->is_default) {
-    //         $restaurant->addresses()->update(['is_default' => false]);
-    //     }
+        $user = $request->user();
 
-    //     $address = $restaurant->addresses()->create($validator->validated());
+        if ($restaurant->user_uid !== $user->uid) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Unauthorized to add address for this restaurant'
+            ], 403);
+        }
 
-    //     return response()->json([
-    //         'success' => true,
-    //         'message' => 'Restaurant address added successfully',
-    //         'data' => $address
-    //     ], 201);
-    // }
+        // Convert all string fields to lowercase
+        $validated = collect($validator->validated())
+            ->map(function ($value) {
+                return is_string($value) ? strtolower($value) : $value;
+            })
+            ->toArray();
+
+        // If this is set as default, unset other default addresses
+        if (!empty($validated['is_default']) && $validated['is_default']) {
+            $restaurant->addresses()->update(['is_default' => false]);
+        }
+
+        // Create the address with lowercase data
+        $address = $restaurant->addresses()->create($validated);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Restaurant address added successfully',
+            'data'    => $address,
+        ], 201);
+    }
 
     /**
      * Display the specified address
