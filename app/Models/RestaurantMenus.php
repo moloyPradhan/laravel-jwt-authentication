@@ -10,6 +10,9 @@ use App\Traits\HasUid;
 class RestaurantMenus extends Model
 {
     use HasFactory, HasUid;
+
+    protected $table = 'restaurant_menus';
+
     protected $fillable = [
         'uid',
         'restaurant_uid',

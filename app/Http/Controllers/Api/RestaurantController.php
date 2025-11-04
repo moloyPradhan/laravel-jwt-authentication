@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use App\Models\Restaurant;
 use App\Models\RestaurantDocument;
 use App\Models\RestaurantImages;
+use App\Models\RestaurantMenus;
 
 use Illuminate\Support\Facades\Storage;
 
@@ -268,6 +269,44 @@ class RestaurantController extends Controller
             200,
             $message,
             ['image' => $image]
+        );
+    }
+
+    public function createMenu(Request $request, string $uid)
+    {
+        $validator = Validator::make($request->all(), [
+            'name'  => 'required|string',
+        ]);
+
+        if ($validator->fails()) {
+            return $this->errorResponse(
+                422,
+                'Validation failed',
+                $validator->errors()
+            );
+        }
+
+        // Find restaurant
+        $restaurant = Restaurant::where('uid', $uid)->first();
+        if (!$restaurant) {
+            return $this->errorResponse(
+                404,
+                'Restaurant not found',
+                []
+            );
+        }
+
+        $name  = $request->input('name');
+
+        $menu = RestaurantMenus::create([
+            'restaurant_uid' => $restaurant->uid,
+            'name'           => strtolower(trim($name)),
+        ]);
+
+        return $this->successResponse(
+            200,
+            "Menu created successfully",
+            ['menu' => $menu]
         );
     }
 }
