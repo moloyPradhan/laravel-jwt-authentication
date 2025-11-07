@@ -37,6 +37,10 @@ Route::prefix('restaurants')->group(function () {
     Route::middleware('auth:api')->group(function () {
 
         Route::post('{uid}/menus', [RestaurantController::class, 'createMenu']);
+        Route::get('{uid}/menus', [RestaurantController::class, 'listMenu']);
+        Route::patch('{restaurantId}/menus/{menuId}', [RestaurantController::class, 'updateMenu']);
+        Route::delete('{restaurantId}/menus/{menuId}', [RestaurantController::class, 'softDeleteMenu']);
+        Route::patch('{restaurantId}/menus/{menuId}/restore', [RestaurantController::class, 'restoreMenu']);
 
         Route::post('/', [RestaurantController::class, 'addRestaurant']);
         Route::post('{uid}/documents', [RestaurantController::class, 'addRestaurantDocuments']);

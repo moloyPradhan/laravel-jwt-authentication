@@ -272,7 +272,7 @@ class RestaurantController extends Controller
         );
     }
 
-    public function createMenu(Request $request, string $uid)
+    public function createMenu(Request $request, string $restaurantId)
     {
         $validator = Validator::make($request->all(), [
             'name'  => 'required|string',
@@ -287,7 +287,7 @@ class RestaurantController extends Controller
         }
 
         // Find restaurant
-        $restaurant = Restaurant::where('uid', $uid)->first();
+        $restaurant = Restaurant::where('uid', $restaurantId)->first();
         if (!$restaurant) {
             return $this->errorResponse(
                 404,
@@ -298,15 +298,119 @@ class RestaurantController extends Controller
 
         $name  = $request->input('name');
 
-        $menu = RestaurantMenus::create([
-            'restaurant_uid' => $restaurant->uid,
-            'name'           => strtolower(trim($name)),
-        ]);
+        try {
+            $menu = RestaurantMenus::create([
+                'restaurant_uid' => $restaurant->uid,
+                'name'           => strtolower(trim($name)),
+            ]);
+
+            return $this->successResponse(
+                200,
+                "Menu created successfully",
+                ['menu' => $menu]
+            );
+        } catch (\Throwable $th) {
+
+            return $this->errorResponse(
+                500,
+                "Something went wrong",
+                $th->getMessage()
+            );
+        }
+    }
+
+    public function listMenu(Request $request, string $restaurantId)
+    {
+        $menus = RestaurantMenus::where('restaurant_uid', $restaurantId)
+            ->select('uid', 'name', 'status')
+            ->get();
 
         return $this->successResponse(
             200,
-            "Menu created successfully",
+            "Menu list",
+            ['menus' => $menus]
+        );
+    }
+
+    public function updateMenu(Request $request, string $restaurantId, string $menuId)
+    {
+        $validator = Validator::make($request->all(), [
+            'name'   => 'required|string',
+            'status' => 'nullable|string',
+        ]);
+
+        if ($validator->fails()) {
+            return $this->errorResponse(
+                422,
+                'Validation failed',
+                $validator->errors()
+            );
+        }
+
+        $menu = RestaurantMenus::where('restaurant_uid', $restaurantId)
+            ->where('uid', $menuId)
+            ->first();
+
+        if (!$menu) {
+            return $this->errorResponse(404, "Menu not found");
+        }
+
+        $menu->name = $request->input('name');
+        $menu->status = $request->input('status', $menu->status);
+
+        $menu->save();
+
+        return $this->successResponse(
+            200,
+            "Menu updated successfully",
             ['menu' => $menu]
         );
+    }
+
+    public function softDeleteMenu(string $restaurantId, string $menuId)
+    {
+        $menu = RestaurantMenus::where('restaurant_uid', $restaurantId)
+            ->where('uid', $menuId)
+            ->first();
+
+        if (!$menu) {
+            return $this->errorResponse(404, "Menu not found");
+        }
+
+        $menu->delete(); // soft delete
+
+        return $this->successResponse(200, "Menu soft deleted successfully");
+    }
+
+    public function restoreMenu(string $restaurantId, string $menuId)
+    {
+        $menu = RestaurantMenus::withTrashed()
+            ->where('restaurant_uid', $restaurantId)
+            ->where('uid', $menuId)
+            ->first();
+
+        if (!$menu) {
+            return $this->errorResponse(404, "Menu not found");
+        }
+
+        $menu->restore();
+
+        return $this->successResponse(200, "Menu restored successfully");
+    }
+
+    public function hardDeleteMenu(string $restaurantId, string $menuId)
+    {
+        $menu = RestaurantMenus::withTrashed()
+            ->where('restaurant_uid', $restaurantId)
+            ->where('uid', $menuId)
+            ->first();
+
+        if (!$menu) {
+            return $this->errorResponse(404, "Menu not found");
+        }
+
+        $menu->forceDelete(); // hard delete
+
+        return $this->successResponse(200, "Menu permanently deleted");
     }
 }
