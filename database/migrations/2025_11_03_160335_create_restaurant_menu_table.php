@@ -25,6 +25,8 @@ return new class extends Migration
                 ->references('uid')
                 ->on('restaurants')
                 ->onDelete('cascade');
+
+            $table->unique(['restaurant_uid', 'name']);
         });
     }
 

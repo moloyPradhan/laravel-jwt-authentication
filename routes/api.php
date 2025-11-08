@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\AddressController;
 use App\Http\Controllers\Api\RestaurantController;
+use App\Http\Controllers\Api\FoodController;
 
 Route::prefix('auth')->group(function () {
     Route::post('verify', [AuthController::class, 'verifyUser']);
@@ -35,6 +36,15 @@ Route::middleware('auth:api')->group(function () {
 Route::prefix('restaurants')->group(function () {
     Route::get('/', [RestaurantController::class, 'index']);
     Route::middleware('auth:api')->group(function () {
+
+        Route::post('{restaurantId}/foods/{foodId}/images', [FoodController::class, 'addFoodImage']);
+        Route::post('{uid}/foods', [FoodController::class, 'addFood']);
+        Route::get('{uid}/foods', [FoodController::class, 'listRestaurantFood']);
+
+
+        // Route::patch('{restaurantId}/menus/{menuId}', [RestaurantController::class, 'updateMenu']);
+        // Route::delete('{restaurantId}/menus/{menuId}', [RestaurantController::class, 'softDeleteMenu']);
+        // Route::patch('{restaurantId}/menus/{menuId}/restore', [RestaurantController::class, 'restoreMenu']);
 
         Route::post('{uid}/menus', [RestaurantController::class, 'createMenu']);
         Route::get('{uid}/menus', [RestaurantController::class, 'listMenu']);
