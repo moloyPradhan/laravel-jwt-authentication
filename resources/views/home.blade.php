@@ -7,6 +7,8 @@
     <title>Document</title>
 </head>
 <body>
-    About Page
+    Home Page
+
+    <a href="{{route('loginPage')}}">Login</a>
 </body>
 </html>

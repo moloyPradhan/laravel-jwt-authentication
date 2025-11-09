@@ -1,6 +1,10 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Illuminate\Http\Request;
+
+
+use App\Http\Controllers\Controller;
 
 /*
 |--------------------------------------------------------------------------
@@ -13,10 +17,21 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
+Route::get('/check-cookie', function (\Illuminate\Http\Request $request) {
+    return response()->json([
+        'access_token' => $request->cookie('access_token'),
+        'all' => $request->cookies->all(),
+    ]);
 });
 
-Route::get('/about', function () {
-    return view('about');
+Route::get('/', [Controller::class, 'homePage'])->name('homePage');
+
+// Route::get('/login', [Controller::class, 'loginPage'])->name('loginPage');
+
+Route::get('/login', [Controller::class, 'loginPage'])
+    ->middleware('redirectIfAuthenticatedCookie')
+    ->name('loginPage');
+
+Route::get('/welcome', function () {
+    return view('welcome');
 });

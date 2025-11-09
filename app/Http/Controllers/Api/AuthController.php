@@ -26,6 +26,19 @@ class AuthController extends Controller
         $this->cookieService = $cookieService;
     }
 
+    /**
+     * Send chat message.
+     *
+     * @group Chat
+     * @bodyParam room_id string required The chat room ID.
+     * @bodyParam from_user string required The sender’s user ID.
+     * @bodyParam message string required The message text.
+     * @response 200 {
+     *   "status": "Message sent successfully"
+     * }
+     */
+
+
     public function register(Request $request)
     {
         try {

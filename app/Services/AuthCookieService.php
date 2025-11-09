@@ -12,9 +12,9 @@ class AuthCookieService
 
     public function __construct()
     {
-        $this->secure = true;
+        $this->secure = false;
         $this->httpOnly = true;
-        $this->sameSite = 'Strict';
+        $this->sameSite = 'Lax';
     }
 
     public function make(string $name, string $value, int $minutes)
@@ -23,8 +23,8 @@ class AuthCookieService
             $name,
             $value,
             $minutes,
-            null,
-            null,
+            "/",
+            '127.0.0.1',
             $this->secure,
             $this->httpOnly,
             false,
