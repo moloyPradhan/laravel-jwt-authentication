@@ -5,6 +5,7 @@ use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\AddressController;
 use App\Http\Controllers\Api\RestaurantController;
 use App\Http\Controllers\Api\FoodController;
+use App\Http\Controllers\Api\MessageController;
 
 Route::prefix('auth')->group(function () {
     Route::post('verify', [AuthController::class, 'verifyUser']);
@@ -58,3 +59,6 @@ Route::prefix('restaurants')->group(function () {
         Route::post('{uid}/addresses', [AddressController::class, 'addRestaurantAddress']);
     });
 });
+
+Route::get('/messages/{roomId}', [MessageController::class, 'getMessages']);
+Route::post('/send-message', [MessageController::class, 'sendMessage']);
