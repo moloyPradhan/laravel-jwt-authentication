@@ -32,6 +32,10 @@ Route::get('/login', [Controller::class, 'loginPage'])
     ->middleware('redirectIfAuthenticatedCookie')
     ->name('loginPage');
 
+Route::middleware('auth:api')->group(function () {
+    Route::get('chat', [Controller::class, 'listChatUser'])->name('userChatList');
+});
+
 Route::get('/welcome', function () {
     return view('welcome');
 });

@@ -10,5 +10,7 @@
     Home Page
 
     <a href="{{route('loginPage')}}">Login</a>
+    <a href="{{route('userChatList')}}">Chats</a>
+    <a href="/check-cookie">Check</a>
 </body>
 </html>

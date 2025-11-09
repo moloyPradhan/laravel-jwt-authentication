@@ -6,6 +6,9 @@ use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Foundation\Validation\ValidatesRequests;
 use Illuminate\Routing\Controller as BaseController;
 
+use Illuminate\Http\Request;
+
+
 class Controller extends BaseController
 {
     use AuthorizesRequests, ValidatesRequests;
@@ -18,5 +21,13 @@ class Controller extends BaseController
     public function loginPage()
     {
         return view('login');
+    }
+
+    public function listChatUser(Request $request)
+    {
+        $user = $request->user();
+
+        print_r($user);
+        die;
     }
 }
