@@ -24,7 +24,7 @@ class AuthCookieService
             $value,
             $minutes,
             "/",
-            '127.0.0.1',
+            null,
             $this->secure,
             $this->httpOnly,
             false,

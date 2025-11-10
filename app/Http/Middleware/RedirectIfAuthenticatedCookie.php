@@ -17,10 +17,11 @@ class RedirectIfAuthenticatedCookie
     {
         $token = $request->cookie('access_token');
 
-        // print_r($token);die;
+        // print_r(11212);
+        // print_r($token);
+        // die;
 
         if ($token) {
-
             return redirect()->route('homePage');
         }
 

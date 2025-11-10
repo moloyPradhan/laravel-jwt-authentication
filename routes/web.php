@@ -26,10 +26,8 @@ Route::get('/check-cookie', function (\Illuminate\Http\Request $request) {
 
 Route::get('/', [Controller::class, 'homePage'])->name('homePage');
 
-// Route::get('/login', [Controller::class, 'loginPage'])->name('loginPage');
-
-Route::get('/login', [Controller::class, 'loginPage'])
-    ->middleware('redirectIfAuthenticatedCookie')
+Route::middleware(['web', 'redirectIfAuthenticatedCookie'])
+    ->get('/login', [Controller::class, 'loginPage'])
     ->name('loginPage');
 
 Route::middleware('auth:api')->group(function () {
