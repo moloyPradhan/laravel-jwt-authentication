@@ -7,6 +7,7 @@ use Illuminate\Foundation\Validation\ValidatesRequests;
 use Illuminate\Routing\Controller as BaseController;
 
 use Illuminate\Http\Request;
+use App\Helpers\AuthHelper;
 
 
 class Controller extends BaseController
@@ -25,9 +26,8 @@ class Controller extends BaseController
 
     public function listChatUser(Request $request)
     {
-        $user = $request->user();
-
-        print_r($user);
+        $authUser = AuthHelper::getUserInfo($request);
+        print_r($authUser);
         die;
     }
 }

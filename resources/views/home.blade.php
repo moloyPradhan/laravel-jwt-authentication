@@ -9,12 +9,14 @@
 </head>
 
 <body>
-    Home Page
+    @if ($isLoggedIn)
+        <p>Hello, {{ $authUser['name'] ?? 'User' }}!</p>
+        {{-- <a href="{{ route('logout') }}">Logout</a> --}}
+    @else
+        <a href="{{ route('loginPage') }}">Login</a>
+    @endif
 
-    <a href="{{ route('loginPage') }}">Login</a>
     <a href="{{ route('userChatList') }}">Chats</a>
-    <a href="/check-cookie">Check</a>
-
 
     <script>
         async function load() {
