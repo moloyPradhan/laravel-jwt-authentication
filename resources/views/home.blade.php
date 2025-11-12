@@ -1,14 +1,8 @@
-<!DOCTYPE html>
-<html lang="en">
+@extends('layouts.app')
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Document</title>
-</head>
+@section('title', 'Home Page')
 
-<body>
+@section('content')
     @if ($isLoggedIn)
         <p>Hello, {{ $authUser['name'] ?? 'User' }}!</p>
         {{-- <a href="{{ route('logout') }}">Logout</a> --}}
@@ -18,26 +12,23 @@
 
     <a href="{{ route('userChatList') }}">Chats</a>
 
-    <script>
-        async function load() {
-            try {
-                const res = await fetch("http://127.0.0.1:8000/api/auth/profile", {
-                    method: "GET",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                    credentials: "include",
-                });
+    @push('scripts')
+        <script type="module">
+            import {
+                httpRequest
+            } from '/js/httpClient.js';
 
-                const data = await res.json();
-                console.log(data);
-            } catch (error) {
-                console.log("Login error response:", error);
+            async function loadProfile() {
+                try {
+                    const data = await httpRequest("/api/auth/profile");
+                    console.log(data);
+                } catch (err) {
+                    console.log("Failed to load profile:", err.message);
+                }
             }
-        }
 
-        load()
-    </script>
-</body>
+            loadProfile();
+        </script>
+    @endpush
 
-</html>
+@endsection
