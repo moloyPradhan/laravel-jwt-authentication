@@ -24,10 +24,13 @@ class Controller extends BaseController
         return view('login');
     }
 
-    public function listChatUser(Request $request)
+    public function listChatUser()
     {
-        $authUser = AuthHelper::getUserInfo($request);
-        print_r($authUser);
-        die;
+        return view('chatList');
+    }
+
+    public function userChat()
+    {
+        return view('chat');
     }
 }

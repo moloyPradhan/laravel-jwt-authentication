@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\AddressController;
 use App\Http\Controllers\Api\RestaurantController;
 use App\Http\Controllers\Api\FoodController;
 use App\Http\Controllers\Api\MessageController;
+use App\Http\Controllers\Api\UserController;
 
 Route::prefix('auth')->group(function () {
     Route::post('verify', [AuthController::class, 'verifyUser']);
@@ -25,6 +26,7 @@ Route::prefix('users')->group(function () {
         Route::get('addresses', [AddressController::class, 'index']);
         Route::post('addresses', [AddressController::class, 'addUserAddress']);
         Route::get('restaurants', [RestaurantController::class, 'getRestaurants']);
+        Route::get('others', [UserController::class, 'listOtherUsers']);
     });
 });
 

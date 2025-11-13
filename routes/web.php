@@ -29,6 +29,7 @@ Route::get('/', [Controller::class, 'homePage'])->name('homePage');
 // Protected routes here
 Route::middleware(['web', 'authGuard'])->group(function () {
     Route::get('chat', [Controller::class, 'listChatUser'])->name('userChatList');
+    Route::get('chat/{uid}', [Controller::class, 'userChat'])->name('userChat');
 });
 
 
