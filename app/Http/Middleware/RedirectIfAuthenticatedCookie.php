@@ -5,6 +5,8 @@ namespace App\Http\Middleware;
 use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
+use App\Helpers\AuthHelper;
+
 
 class RedirectIfAuthenticatedCookie
 {
@@ -15,16 +17,9 @@ class RedirectIfAuthenticatedCookie
      */
     public function handle(Request $request, Closure $next): Response
     {
-        $token = $request->cookie('access_token');
-
-        // print_r(11212);
-        // print_r($token);
-        // die;
-
-        if ($token) {
+        if (AuthHelper::isLoggedIn($request)) {
             return redirect()->route('homePage');
         }
-
         return $next($request);
     }
 }

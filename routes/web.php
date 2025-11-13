@@ -17,20 +17,21 @@ use App\Http\Controllers\Controller;
 |
 */
 
-Route::get('/check-cookie', function (\Illuminate\Http\Request $request) {
-    return response()->json([
-        'access_token' => $request->cookie('access_token'),
-        'all' => $request->cookies->all(),
-    ]);
-});
-
-Route::get('/', [Controller::class, 'homePage'])->name('homePage');
-
 Route::middleware(['web', 'redirectIfAuthenticatedCookie'])
     ->get('/login', [Controller::class, 'loginPage'])
     ->name('loginPage');
 
-Route::get('chat', [Controller::class, 'listChatUser'])->name('userChatList');
+
+// public routes
+Route::get('/', [Controller::class, 'homePage'])->name('homePage');
+
+
+// Protected routes here
+Route::middleware(['web', 'authGuard'])->group(function () {
+    Route::get('chat', [Controller::class, 'listChatUser'])->name('userChatList');
+});
+
+
 
 Route::get('/welcome', function () {
     return view('welcome');
