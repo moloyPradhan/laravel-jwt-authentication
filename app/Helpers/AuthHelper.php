@@ -58,4 +58,13 @@ class AuthHelper
         }
         return null;
     }
+
+    public static function getUserId(Request $request)
+    {
+        $user = self::getUser($request);
+        if ($user) {
+            return $user->uid;
+        }
+        return null;
+    }
 }

@@ -29,8 +29,9 @@ class Controller extends BaseController
         return view('chatList');
     }
 
-    public function userChat()
+    public function userChat(Request $request, $friendId)
     {
-        return view('chat');
+        $userId = AuthHelper::getUserId($request);
+        return view('chat', compact('friendId', 'userId'));
     }
 }

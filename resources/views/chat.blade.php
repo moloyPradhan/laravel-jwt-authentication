@@ -30,9 +30,13 @@
 
     <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
     <script>
-        const userId = "2b5c35cb"; // logged-in user ID
-        const friendId = "d0884867"; // chatting with
-        const roomId = `room_${[userId, friendId].sort().join('_')}`;
+        const userId = @json($userId);
+        const friendId = @json($friendId);
+
+        console.log("Current User ID:", userId);
+        console.log("Friend User ID:", friendId);
+
+        const roomId = `R_${[userId, friendId].sort().join('_')}`;
 
         const socket = io("http://localhost:6001");
 
