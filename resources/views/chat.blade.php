@@ -8,61 +8,164 @@
     <title>Chat</title>
 
     <style>
-        .messageContainer {
-            background-color: burlywood;
-            height: 50vh;
-            margin-bottom: 10px;
-            padding: 10px
+        body {
+            background: #f3f4f6;
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+
+        .chatBox {
+            background: #ffffff;
+            height: 70vh;
+            border-radius: 10px;
+            padding: 15px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .message {
+            max-width: 60%;
+            padding: 12px 15px;
+            border-radius: 12px;
+            font-size: 15px;
+            line-height: 1.4;
+            word-break: break-word;
+            animation: fadeIn 0.2s ease-in;
+        }
+
+        .sent {
+            align-self: flex-end;
+            background: #0c8c32;
+            color: #fff;
+            border-bottom-right-radius: 0;
+        }
+
+        .received {
+            align-self: flex-start;
+            background: #3b45e0;
+            color: #fff;
+            border-bottom-left-radius: 0;
+        }
+
+        #bottomSpace {
+            height: 5px;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(5px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .inputArea {
+            margin-top: 10px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .inputArea input {
+            flex: 1;
+            padding: 10px 12px;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+            outline: none;
+        }
+
+        .inputArea button {
+            background: #2563eb;
+            padding: 10px 20px;
+            border-radius: 8px;
+            border: none;
+            color: #fff;
+            cursor: pointer;
         }
     </style>
 </head>
 
 <body>
-
-    <div id="messageContainer" class="messageContainer">
-
-    </div>
-
-    <div>
+    <div id="messageContainer" class="chatBox"></div>
+    <div class="inputArea">
         <input type="text" id="msgInput">
         <button id="sendBtn">Send</button>
     </div>
 
     <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
-    <script>
+
+    <script type="module">
+        import {
+            httpRequest
+        } from '/js/httpClient.js';
+
         const userId = @json($userId);
         const friendId = @json($friendId);
-
-        console.log("Current User ID:", userId);
-        console.log("Friend User ID:", friendId);
-
         const roomId = `R_${[userId, friendId].sort().join('_')}`;
+
+        async function renderMessages() {
+            try {
+                const url = `/api/messages/${roomId}`;
+                const res = await httpRequest(url);
+                const messages = res?.data?.messages || [];
+
+                let html = "";
+
+                messages.forEach((item) => {
+                    html += `<div class="message ${item.type}">${item.message}</div>`;
+                });
+
+                document.getElementById("messageContainer").innerHTML = html;
+
+                scrollToBottom();
+            } catch (err) {
+                console.log("Error :", err.message);
+            }
+        }
+
+        renderMessages();
+
+        function scrollToBottom() {
+            const box = document.getElementById("messageContainer");
+            box.scrollTop = box.scrollHeight;
+        }
+
 
         const socket = io("http://localhost:6001");
 
         socket.on("connect", () => {
-            console.log("Connected to socket:", socket.id);
-
-            // Register current user
             socket.emit("register", userId);
-
-            // Join chat room
             socket.emit("joinRoom", roomId);
         });
 
-        // Receive messages
         socket.on("receiveMessage", (data) => {
             if (data.roomId === roomId) {
-                console.log("💬 New message:", data.message);
-                // append to chat UI
 
-                document.getElementById("messageContainer").innerHTML += `<div>${data.message}</div>`
+                renderMessages();
+
+                // document.getElementById("messageContainer").innerHTML +=
+                //     `<div class="message received">${data.message}</div>`;
+
+                scrollToBottom();
             }
         });
 
-        // Send message (to Laravel)
+
         async function sendMessage(text) {
-            const res = await fetch("http://127.0.0.1:8000/api/send-message", {
+            if (!text.trim()) return;
+
+            document.getElementById("messageContainer").innerHTML +=
+                `<div class="message sent">${text}</div>`;
+
+            scrollToBottom();
+
+            await fetch("http://127.0.0.1:8000/api/send-message", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -74,14 +177,10 @@
                 }),
             });
 
-            const data = await res.json();
-            console.log("Message sent response:", data);
-
-            // Clear input box
             document.getElementById("msgInput").value = "";
         }
 
-        // Example button trigger
+
         document.getElementById("sendBtn").addEventListener("click", () => {
             const text = document.getElementById("msgInput").value;
             sendMessage(text);

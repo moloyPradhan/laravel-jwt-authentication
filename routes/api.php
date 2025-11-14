@@ -62,5 +62,7 @@ Route::prefix('restaurants')->group(function () {
     });
 });
 
-Route::get('/messages/{roomId}', [MessageController::class, 'getMessages']);
-Route::post('/send-message', [MessageController::class, 'sendMessage']);
+Route::middleware('auth:api')->group(function () {
+    Route::get('/messages/{roomId}', [MessageController::class, 'getMessages']);
+    Route::post('/send-message', [MessageController::class, 'sendMessage']);
+});

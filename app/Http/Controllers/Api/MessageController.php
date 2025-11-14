@@ -36,8 +36,31 @@ class MessageController extends Controller
         return response()->json(['success' => true, 'data' => $msg]);
     }
 
-    public function getMessages($roomId)
+    public function getMessages(Request $request, $roomId)
     {
-        return Message::where('room_id', $roomId)->orderBy('created_at')->get();
+        $user = $request->user();
+        $user_uid = $user->uid;
+
+        $messages = Message::where('room_id', $roomId)
+            ->orderBy('created_at')
+            ->get()
+            ->map(function ($msg) use ($user_uid) {
+                return [
+                    'id'       => $msg->id,
+                    'message'  => $msg->message,
+                    'type'     => $msg->from_user == $user_uid ? 'sent' : 'received',
+                    'time'     => $msg->created_at->format('Y-m-d H:i:s'),
+                    'date'     => $msg->created_at->format('d M Y'),
+                ];
+            });
+
+        $res = [
+            'success' => true,
+            'httpStatus' => 200,
+            'message' => 'Messages',
+            'data'    => ['messages' => $messages],
+        ];
+
+        return response()->json($res);
     }
 }
