@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -7,6 +8,6 @@
     <title>Document</title>
 </head>
 <body>
-    Add restaurant
+    <h1>add form</h1>
 </body>
 </html>

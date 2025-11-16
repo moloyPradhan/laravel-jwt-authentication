@@ -84,7 +84,9 @@
                                     alt="${item.name}" class="h-40 w-full object-cover" />
                                 <div class="p-4 flex flex-col flex-grow">
                                     <div class="flex justify-between items-center mb-1">
-                                        <h3 class="text-lg font-semibold">${item.name}</h3>
+                                        <h3 class="text-lg text-blue-500 font-semibold">
+                                            <a href="${urlSellerRestaurant}/${item.uid}">${item.name}</a>
+                                        </h3>
                                         <span class="px-2 py-1 rounded-full font-medium ${item.status === 'approved' ? 'bg-blue-100 text-blue-700' : item.status === 'active' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'}">
                                             ${item.status}
                                         </span>
