@@ -40,8 +40,18 @@ class Controller extends BaseController
         return view('chat', compact('friendId', 'userId'));
     }
 
-    public function sellerDashboard()
+    public function sellerDashboardPage()
     {
         return view('seller.dashboard');
+    }
+
+    public function sellerAddRestaurantPage()
+    {
+        return view('seller.addRestaurant');
+    }
+    
+    public function sellerRestaurantPage()
+    {
+        return view('seller.restaurant');
     }
 }

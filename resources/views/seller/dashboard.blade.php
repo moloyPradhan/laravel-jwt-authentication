@@ -58,6 +58,9 @@
             httpRequest
         } from '/js/httpClient.js';
 
+
+        const urlSellerRestaurant = @json(route('sellerAddRestaurantPage'));
+
         async function restaurants() {
             try {
                 const url = `/api/users/restaurants`;
@@ -70,7 +73,7 @@
                     html = `
                         <div class="col-span-full bg-white rounded-lg p-8 text-center text-gray-500">
                             You don't have any restaurants yet. 
-                            <a href="/restaurants" class="text-blue-600 hover:underline font-semibold ml-1">Click here to add</a>.
+                            <a href="${urlSellerRestaurant}" class="text-blue-600 hover:underline font-semibold ml-1">Click here to add</a>.
                         </div>
                         `;
                 } else {
@@ -98,7 +101,7 @@
                     // Add extra card for adding a new restaurant
                     html += `
                         <div class="flex items-center justify-center border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-blue-500 text-gray-500 transition p-6">
-                            <a href="/restaurants" class="flex flex-col items-center space-y-2">
+                            <a href="${urlSellerRestaurant}" class="flex flex-col items-center space-y-2">
                                 <svg xmlns="http://www.w3.org/2000/svg" 
                                     class="h-12 w-12 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
