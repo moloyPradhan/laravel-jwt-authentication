@@ -13,8 +13,8 @@
 <body>
     @include('layouts.header')
 
-    @include('layouts.sidebar') 
-    
+    @include('layouts.sidebar')
+
     {{-- content is in sidebar --}}
 
     @include('layouts.footer')

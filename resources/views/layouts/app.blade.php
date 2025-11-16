@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@yield('title', 'Default Title')</title>
 
-    <script src="https://cdn.tailwindcss.com"></script>
+    @include('layouts.headerLink')
 
 </head>
 

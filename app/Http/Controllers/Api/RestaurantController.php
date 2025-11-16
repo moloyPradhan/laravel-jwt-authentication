@@ -112,6 +112,7 @@ class RestaurantController extends Controller
         // Eager-load restaurant images to avoid N+1 queries
         $restaurants = $user->restaurants()
             ->with('images')
+            ->with('addresses')
             ->get();
 
         // Format response data
@@ -126,6 +127,16 @@ class RestaurantController extends Controller
                 'images' => $restaurant->images->mapWithKeys(function ($image) {
                     return [
                         $image->type => asset('storage/' . $image->file_path),
+                    ];
+                }),
+                'addresses'   => $restaurant->addresses->mapWithKeys(function ($addresses) {
+                    return [
+                        'label'           => ucwords($addresses->label),
+                        'address_line_1'  => ucwords($addresses->address_line_1),
+                        'address_line_2'  => ucwords($addresses->address_line_2),
+                        'city'            => ucwords($addresses->city),
+                        'state'           => ucwords($addresses->state),
+                        'postal_code'     => $addresses->postal_code,
                     ];
                 }),
             ];
