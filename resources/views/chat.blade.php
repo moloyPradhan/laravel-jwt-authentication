@@ -33,7 +33,6 @@
             font-size: 15px;
             line-height: 1.4;
             word-break: break-word;
-            animation: fadeIn 0.2s ease-in;
         }
 
         .sent {
@@ -121,6 +120,7 @@
                     html += `<div class="message ${item.type}">${item.message}</div>`;
                 });
 
+
                 document.getElementById("messageContainer").innerHTML = html;
 
                 scrollToBottom();
@@ -147,11 +147,10 @@
         socket.on("receiveMessage", (data) => {
             if (data.roomId === roomId) {
 
-                renderMessages();
-
-                // document.getElementById("messageContainer").innerHTML +=
-                //     `<div class="message received">${data.message}</div>`;
-
+                if (String(data.fromUser) !== String(userId)) {
+                    document.getElementById("messageContainer").innerHTML +=
+                        `<div class="message received">${data.message}</div>`;
+                }
                 scrollToBottom();
             }
         });
@@ -165,7 +164,7 @@
 
             scrollToBottom();
 
-            await fetch("http://127.0.0.1:8000/api/send-message", {
+            await fetch("/api/send-message", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",

@@ -20,6 +20,7 @@ return [
     'allowed_methods' => ['*'],
 
     'allowed_origins' => ['*'],
+    // 'allowed_origins' => ['https://191c6f8f897c.ngrok-free.app'],
 
     'allowed_origins_patterns' => [],
 
@@ -30,8 +31,4 @@ return [
     'exposed_headers' => [],
 
     'max_age' => 0,
-
-    'supports_credentials' => false,
-
-
 ];

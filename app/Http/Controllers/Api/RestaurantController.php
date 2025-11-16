@@ -33,13 +33,12 @@ class RestaurantController extends Controller
                 'description' => $restaurant->description,
                 'status'      => $restaurant->status,
                 'user_name'   => $restaurant->user ? $restaurant->user->name : null,
-                'images'      => $restaurant->images->map(function ($image) {
+                'images' => $restaurant->images->mapWithKeys(function ($image) {
                     return [
-                        'type'      => $image->type,
-                        'file_path' => asset('storage/' . $image->file_path),
+                        $image->type => asset('storage/' . $image->file_path),
                     ];
                 }),
-                'addresses'   => $restaurant->addresses->map(function ($addresses) {
+                'addresses'   => $restaurant->addresses->mapWithKeys(function ($addresses) {
                     return [
                         'label'           => ucwords($addresses->label),
                         'address_line_1'  => ucwords($addresses->address_line_1),

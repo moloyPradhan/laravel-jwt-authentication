@@ -16,7 +16,7 @@
 
         <label for="email">Email</label><br>
         <input type="email" id="email" name="email" placeholder="Enter your email"
-            value="moloypradhan50@gmail.com" required
+            required
             style="width: 100%; padding: 10px; margin: 8px 0 16px 0; border: 1px solid #ccc; border-radius: 5px;">
 
         <label for="password">Password</label><br>
@@ -37,7 +37,7 @@
             const password = document.getElementById("password").value
 
             try {
-                const res = await fetch("http://127.0.0.1:8000/api/auth/login", {
+                const res = await fetch("/api/auth/login", {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",

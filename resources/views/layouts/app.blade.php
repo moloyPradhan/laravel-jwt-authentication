@@ -5,13 +5,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@yield('title', 'Default Title')</title>
-    <!-- Add common CSS/JS here -->
+
+    <script src="https://cdn.tailwindcss.com"></script>
+
 </head>
 
 <body>
     @include('layouts.header')
 
-    <div class="container">
+    <div class="container min-h-[calc(100vh-6rem)] mx-auto px-4 py-8">
         @yield('content')
     </div>
 
