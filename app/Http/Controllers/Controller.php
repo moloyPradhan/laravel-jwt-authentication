@@ -39,4 +39,9 @@ class Controller extends BaseController
         $userId = AuthHelper::getUserId($request);
         return view('chat', compact('friendId', 'userId'));
     }
+
+    public function sellerDashboard()
+    {
+        return view('seller.dashboard');
+    }
 }

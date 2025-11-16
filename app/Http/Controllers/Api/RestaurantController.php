@@ -112,7 +112,6 @@ class RestaurantController extends Controller
         // Eager-load restaurant images to avoid N+1 queries
         $restaurants = $user->restaurants()
             ->with('images')
-            ->with('documents')
             ->get();
 
         // Format response data
@@ -124,19 +123,11 @@ class RestaurantController extends Controller
                 'email'       => $restaurant->email,
                 'description' => $restaurant->description,
                 'status'      => $restaurant->status,
-                'images'      => $restaurant->images->map(function ($image) {
+                'images' => $restaurant->images->mapWithKeys(function ($image) {
                     return [
-                        'type'      => $image->type,
-                        'file_path' => asset('storage/' . $image->file_path),
+                        $image->type => asset('storage/' . $image->file_path),
                     ];
                 }),
-                'documents' => $restaurant->documents->map(function ($document) {
-                    return [
-                        'type'       => $document->type,
-                        'file_path'  => asset('storage/' . $document->file_path),
-                        'created_at' => $document->created_at
-                    ];
-                })
             ];
         });
 
