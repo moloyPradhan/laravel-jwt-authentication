@@ -5,6 +5,7 @@ use Illuminate\Http\Request;
 
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\Api\RazorpayPaymentController;
 
 /*
 |--------------------------------------------------------------------------
@@ -39,8 +40,12 @@ Route::middleware(['web', 'authGuard'])->group(function () {
     Route::get('seller/restaurant/{uid}', [Controller::class, 'sellerRestaurantPage'])->name('sellerRestaurantPage');
 });
 
+Route::get('razorpay-payment', [RazorpayPaymentController::class, 'index']);
+Route::post('razorpay-payment', [RazorpayPaymentController::class, 'store'])->name('razorpay.payment.store');
+
 
 
 Route::get('/welcome', function () {
     return view('welcome');
 });
+
