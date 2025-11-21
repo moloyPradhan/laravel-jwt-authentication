@@ -49,9 +49,18 @@ class Controller extends BaseController
     {
         return view('seller.addRestaurant');
     }
-    
-    public function sellerRestaurantPage()
+
+    public function sellerRestaurantPage($restaurantId)
     {
-        return view('seller.restaurant');
+        return view('seller.restaurant', [
+            'restaurantId' => $restaurantId,
+        ]);
+    }
+
+    public function sellerRestaurantProfilePage($restaurantId)
+    {
+        return view('seller.basicDetail', [
+            'restaurantId' => $restaurantId,
+        ]);
     }
 }

@@ -38,6 +38,7 @@ Route::middleware(['web', 'authGuard'])->group(function () {
     Route::get('seller/dashboard', [Controller::class, 'sellerDashboardPage'])->name('sellerDashboardPage');
     Route::get('seller/restaurant', [Controller::class, 'sellerAddRestaurantPage'])->name('sellerAddRestaurantPage');
     Route::get('seller/restaurant/{uid}', [Controller::class, 'sellerRestaurantPage'])->name('sellerRestaurantPage');
+    Route::get('seller/restaurant/{uid}/profile', [Controller::class, 'sellerRestaurantProfilePage'])->name('sellerRestaurantProfilePage');
 });
 
 Route::get('razorpay-payment', [RazorpayPaymentController::class, 'index']);

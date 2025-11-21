@@ -25,8 +25,8 @@ Route::prefix('users')->group(function () {
     Route::middleware('auth:api')->group(function () {
         Route::get('addresses', [AddressController::class, 'index']);
         Route::post('addresses', [AddressController::class, 'addUserAddress']);
-        Route::get('restaurants', [RestaurantController::class, 'getRestaurants']);
         Route::get('others', [UserController::class, 'listOtherUsers']);
+        Route::get('restaurants', [RestaurantController::class, 'getRestaurants']);
     });
 });
 
@@ -48,6 +48,8 @@ Route::prefix('restaurants')->group(function () {
         // Route::patch('{restaurantId}/menus/{menuId}', [RestaurantController::class, 'updateMenu']);
         // Route::delete('{restaurantId}/menus/{menuId}', [RestaurantController::class, 'softDeleteMenu']);
         // Route::patch('{restaurantId}/menus/{menuId}/restore', [RestaurantController::class, 'restoreMenu']);
+
+        Route::get('{uid}/basic-details', [RestaurantController::class, 'restaurantBasicDetails']);
 
         Route::post('{uid}/menus', [RestaurantController::class, 'createMenu']);
         Route::get('{uid}/menus', [RestaurantController::class, 'listMenu']);

@@ -80,7 +80,7 @@
                     restaurants.forEach((item) => {
                         html += `
                             <div class="bg-white rounded-lg shadow-md overflow-hidden flex flex-col">
-                                <img src="${item.images?.front_image || 'https://via.placeholder.com/400x160?text=No+Image'}" 
+                                <img src="${item?.images?.front_image || 'https://via.placeholder.com/400x160?text=No+Image'}" 
                                     alt="${item.name}" class="h-40 w-full object-cover" />
                                 <div class="p-4 flex flex-col flex-grow">
                                     <div class="flex justify-between items-center mb-1">

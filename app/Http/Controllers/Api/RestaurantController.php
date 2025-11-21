@@ -414,4 +414,15 @@ class RestaurantController extends Controller
 
         return $this->successResponse(200, "Menu permanently deleted");
     }
+
+    public function restaurantBasicDetails(Request $request, $restaurantId)
+    {
+        $restaurants = Restaurant::where('uid', $restaurantId)->first();
+
+        return $this->successResponse(
+            200,
+            'Restaurant basic details',
+            ['basicDetails' => $restaurants]
+        );
+    }
 }
