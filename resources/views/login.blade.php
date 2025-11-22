@@ -4,34 +4,43 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Login</title>
-
     @include('layouts.headerLink')
 </head>
 
 <body
-    style="font-family: Arial, sans-serif; background-color: #f5f5f5; height: 100vh; display: flex; justify-content: center; align-items: center;">
-    <div
-        style="background-color: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); width: 300px;">
-        <h2 style="text-align: center; margin-bottom: 20px;">Login</h2>
+    class="font-sans bg-gradient-to-br from-blue-50 via-indigo-50 to-gray-100 min-h-screen flex items-center justify-center">
+    <div class="bg-white p-8 rounded-xl shadow-lg w-80 max-w-full">
+        <h2 class="text-2xl font-bold text-blue-700 mb-3 text-center">Login</h2>
+        <!-- Email Input -->
+        <div class="relative mb-5">
+            <label for="email">
+                Email
+            </label>
+            <input type="email"
+                class="peer w-full px-3 py-3 border border-gray-300 rounded-md focus:border-blue-500 focus:outline-none"
+                id="email" name="email" placeholder="Email address" autocomplete="off" required />
 
-        <label for="email">Email</label><br>
-        <input type="email" class="outline-none" id="email" name="email" placeholder="Enter your email"
-            style="width: 100%; padding: 10px; margin: 8px 0 16px 0; border: 1px solid #ccc; border-radius: 5px;"
-            required>
+        </div>
 
-        <label for="password">Password</label><br>
-        <input type="password" id="password" name="password" placeholder="Enter your password" required
-            class="outline-none"
-            style="width: 100%; padding: 10px; margin: 8px 0 16px 0; border: 1px solid #ccc; border-radius: 5px;">
-
+        <!-- Password Input -->
+        <div class="relative mb-6">
+            <label for="password">
+                Password
+            </label>
+            <input type="password" id="password" name="password"
+                class="peer w-full px-3 py-3 border border-gray-300 rounded-md focus:border-blue-500 focus:outline-none bg-transparent placeholder-shown:bg-white"
+                placeholder="password@123$/" required autocomplete="off" />
+            <span id="togglePwd"
+                class="absolute right-3 top-half cursor-pointer text-gray-400 hover:text-blue-600 text-lg select-none">
+                &#128065;
+            </span>
+        </div>
         <button type="button" id="btnLogin"
-            style="width: 100%; padding: 10px; background-color: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer;">
+            class="w-full py-3 bg-blue-600 hover:bg-blue-700 transition text-white font-semibold rounded-md shadow-sm mt-2">
             Login
         </button>
     </div>
-
 
     <script type="module">
         import {
@@ -39,21 +48,30 @@
             showToast
         } from '/js/httpClient.js';
 
-        document.getElementById("btnLogin").addEventListener("click", (event) => {
-            login()
+        const emailInput = document.getElementById("email");
+        const passwordInput = document.getElementById("password");
+        const loginBtn = document.getElementById("btnLogin");
+
+        loginBtn.addEventListener("click", () => {
+            login();
+        });
+
+        document.getElementById("togglePwd").addEventListener("click", () => {
+            passwordInput.type = passwordInput.type === "password" ? "text" : "password";
         });
 
         async function login() {
-            const email = document.getElementById("email").value
-            const password = document.getElementById("password").value
+            const email = emailInput.value.trim();
+            const password = passwordInput.value.trim();
 
             if (!email) {
                 showToast('warning', 'Enter email..!');
+                emailInput.focus();
                 return;
             }
-
             if (!password) {
                 showToast('warning', 'Enter password..!');
+                passwordInput.focus();
                 return;
             }
 
@@ -64,24 +82,29 @@
                     body: {
                         email,
                         password
-                    },
+                    }
                 };
 
-                const res = await httpRequest(url, options);
+                loginBtn.textContent = "Loading...";
+                loginBtn.disabled = true;
 
+                const res = await httpRequest(url, options);
                 if (res.httpStatus >= 200 && res.httpStatus < 300) {
                     showToast('success', res.message);
                     setTimeout(() => {
-                        location.href = @json(route('homePage'))
-                    }, 200);
+                        location.href = @json(route('homePage'));
+                    }, 350);
                 }
 
             } catch (err) {
-                console.error("Upload error:", err);
+                console.error("Login error:", err);
+            }
+            finally {
+                loginBtn.textContent = "Login";
+                loginBtn.disabled = false;
             }
         }
     </script>
 </body>
-
 
 </html>
