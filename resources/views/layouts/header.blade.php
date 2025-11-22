@@ -23,12 +23,11 @@
             <div x-show="open" @click.away="open = false"
                 class="absolute right-0 mt-2 w-40 bg-white border rounded shadow-lg z-50">
                 <a href="{{ route('profilePage') }}" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">Profile</a>
-                <form method="POST" action="{{ route('profilePage') }}" class="m-0">
-                    @csrf
-                    <button type="submit" class="w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100">
-                        Logout
-                    </button>
-                </form>
+
+                <button type="submit" class="w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100"
+                    id="btnLogout">
+                    Logout
+                </button>
             </div>
         @else
             <a href="{{ route('loginPage') }}" class="text-gray-700 hover:text-blue-600">Login</a>
@@ -36,5 +35,34 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+
+    <script type="module">
+        import {
+            httpRequest
+        } from '/js/httpClient.js';
+
+        document.getElementById("btnLogout").addEventListener("click", (event) => {
+            if (confirm("Sure want to logout?")) {
+                logout()
+            }
+        });
+
+        async function logout() {
+            try {
+
+                const url = `/api/auth/logout`
+                const options = {
+                    method: "POST"
+                };
+
+                const res = await httpRequest(url, options);
+                location.href = @json(route('homePage'))
+
+            } catch (err) {
+                console.log("Error :", err.message);
+            }
+        }
+    </script>
+
 
 </header>
