@@ -10,12 +10,12 @@
                 class="block py-2 px-3 rounded hover:bg-blue-500 hover:text-white {{ request()->routeIs('sellerRestaurantImagePage') ? 'bg-blue-600 text-white' : 'text-gray-700' }}">
                 Images
             </a>
-            <a href="{{ route('sellerRestaurantImagePage', ['uid' => $restaurantId]) }}"
-                class="block py-2 px-3 rounded hover:bg-blue-500 hover:text-white {{ request()->routeIs('loginPage*') ? 'bg-blue-600 text-white' : 'text-gray-700' }}">
+            <a href="{{ route('sellerRestaurantDocumentPage', ['uid' => $restaurantId]) }}"
+                class="block py-2 px-3 rounded hover:bg-blue-500 hover:text-white {{ request()->routeIs('sellerRestaurantDocumentPage') ? 'bg-blue-600 text-white' : 'text-gray-700' }}">
                 Documents
             </a>
-            <a href="{{ route('sellerRestaurantImagePage', ['uid' => $restaurantId]) }}"
-                class="block py-2 px-3 rounded hover:bg-blue-500 hover:text-white {{ request()->routeIs('loginPage*') ? 'bg-blue-600 text-white' : 'text-gray-700' }}">
+            <a href="{{ route('sellerRestaurantAddressPage', ['uid' => $restaurantId]) }}"
+                class="block py-2 px-3 rounded hover:bg-blue-500 hover:text-white {{ request()->routeIs('sellerRestaurantAddressPage') ? 'bg-blue-600 text-white' : 'text-gray-700' }}">
                 Address
             </a>
             <a href="{{ route('sellerRestaurantPage', ['uid' => $restaurantId]) }}"

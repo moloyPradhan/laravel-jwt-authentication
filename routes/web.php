@@ -40,6 +40,8 @@ Route::middleware(['web', 'authGuard'])->group(function () {
     Route::get('seller/restaurant/{uid}', [Controller::class, 'sellerRestaurantPage'])->name('sellerRestaurantPage');
     Route::get('seller/restaurant/{uid}/profile', [Controller::class, 'sellerRestaurantProfilePage'])->name('sellerRestaurantProfilePage');
     Route::get('seller/restaurant/{uid}/images', [Controller::class, 'sellerRestaurantImagePage'])->name('sellerRestaurantImagePage');
+    Route::get('seller/restaurant/{uid}/address', [Controller::class, 'sellerRestaurantAddressPage'])->name('sellerRestaurantAddressPage');
+    Route::get('seller/restaurant/{uid}/documents', [Controller::class, 'sellerRestaurantDocumentPage'])->name('sellerRestaurantDocumentPage');
 });
 
 Route::get('razorpay-payment', [RazorpayPaymentController::class, 'index']);
