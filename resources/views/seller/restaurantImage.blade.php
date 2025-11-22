@@ -78,8 +78,8 @@
 
                 <div
                     class="w-full h-60 rounded-lg overflow-hidden border-2 border-dashed border-gray-300 flex items-center justify-center bg-gray-50 hover:bg-gray-100 transition">
-                    <img id="banner_preview" class="w-full h-full object-cover rounded" src=""
-                        alt="Banner preview" style="display: none;">
+                    <img id="banner_preview" class="w-full h-full object-cover rounded" src="" alt="Banner preview"
+                        style="display: none;">
                     <span id="banner_placeholder" class="text-gray-400 text-xs">No image</span>
                 </div>
             </div>
@@ -104,8 +104,8 @@
 
                 <div
                     class="w-32 h-32 rounded-full overflow-hidden border-2 border-dashed border-gray-300 flex items-center justify-center bg-gray-50 hover:bg-gray-100 transition">
-                    <img id="logo" class="w-full h-full object-cover rounded-full" src=""
-                        alt="Logo preview" style="display: none;">
+                    <img id="logo" class="w-full h-full object-cover rounded-full" src="" alt="Logo preview"
+                        style="display: none;">
                     <span id="logo_placeholder" class="text-gray-400 text-xs">No image</span>
                 </div>
             </div>
@@ -115,7 +115,8 @@
 
     <script type="module">
         import {
-            httpRequest
+            httpRequest,
+            showToast
         } from '/js/httpClient.js';
 
 
@@ -224,7 +225,7 @@
         async function uploadImage(fileInputId) {
             const input = document.getElementById(fileInputId);
             if (!input || input.files.length === 0) {
-                alert("No file selected for upload.");
+                showToast("warning", "No file selected for upload.");
                 return;
             }
             const file = input.files[0];
@@ -238,15 +239,13 @@
                     method: "POST",
                     body: formData,
                 };
-                const response = await httpRequest(url, options);
-                if (response && response.success) {
-                    alert('Image uploaded successfully!');
-                } else {
-                    alert('Failed to upload image.');
+                const res = await httpRequest(url, options);
+                if (res.httpStatus >= 200 && res.httpStatus < 300) {
+                    showToast('success', 'Image uploaded successfully!');
                 }
+
             } catch (err) {
                 console.error("Upload error:", err);
-                alert("Error uploading image.");
             }
         }
     </script>

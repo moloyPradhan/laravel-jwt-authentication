@@ -38,13 +38,18 @@
 
     <script type="module">
         import {
-            httpRequest
+            httpRequest,
+            showConfirmAlert,
+            showAlert,
         } from '/js/httpClient.js';
 
         document.getElementById("btnLogout").addEventListener("click", (event) => {
-            if (confirm("Sure want to logout?")) {
-                logout()
-            }
+            showConfirmAlert("question", "Sure want to logout?")
+                .then((result) => {
+                    if (result.isConfirmed) {
+                        logout();
+                    }
+                });
         });
 
         async function logout() {

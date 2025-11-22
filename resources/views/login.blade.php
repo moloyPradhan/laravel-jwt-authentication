@@ -5,7 +5,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Document</title>
+    <title>Login</title>
+
+    @include('layouts.headerLink')
 </head>
 
 <body
@@ -15,53 +17,69 @@
         <h2 style="text-align: center; margin-bottom: 20px;">Login</h2>
 
         <label for="email">Email</label><br>
-        <input type="email" id="email" name="email" placeholder="Enter your email"
-            required
-            style="width: 100%; padding: 10px; margin: 8px 0 16px 0; border: 1px solid #ccc; border-radius: 5px;">
+        <input type="email" class="outline-none" id="email" name="email" placeholder="Enter your email"
+            style="width: 100%; padding: 10px; margin: 8px 0 16px 0; border: 1px solid #ccc; border-radius: 5px;"
+            required>
 
         <label for="password">Password</label><br>
         <input type="password" id="password" name="password" placeholder="Enter your password" required
+            class="outline-none"
             style="width: 100%; padding: 10px; margin: 8px 0 16px 0; border: 1px solid #ccc; border-radius: 5px;">
 
-        <button type="button" onclick="login()"
+        <button type="button" id="btnLogin"
             style="width: 100%; padding: 10px; background-color: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer;">
             Login
         </button>
     </div>
 
 
-    <script>
-        async function login() {
+    <script type="module">
+        import {
+            httpRequest,
+            showToast
+        } from '/js/httpClient.js';
 
+        document.getElementById("btnLogin").addEventListener("click", (event) => {
+            login()
+        });
+
+        async function login() {
             const email = document.getElementById("email").value
             const password = document.getElementById("password").value
 
+            if (!email) {
+                showToast('warning', 'Enter email..!');
+                return;
+            }
+
+            if (!password) {
+                showToast('warning', 'Enter password..!');
+                return;
+            }
+
             try {
-                const res = await fetch("/api/auth/login", {
+                const url = `/api/auth/login`;
+                const options = {
                     method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
+                    body: {
+                        email,
+                        password
                     },
-                    credentials: "include",
-                    body: JSON.stringify({
-                        email: email,
-                        password: password,
-                    }),
-                });
+                };
 
-                const data = await res.json();
+                const res = await httpRequest(url, options);
 
-                if (data.httpStatus == 200) {
-                    location.href = '{{ route('homePage') }}';
-
+                if (res.httpStatus >= 200 && res.httpStatus < 300) {
+                    showToast('success', res.message);
+                    setTimeout(() => {
+                        location.href = @json(route('homePage'))
+                    }, 200);
                 }
 
-            } catch (error) {
-                console.log("Login error response:", error);
-
+            } catch (err) {
+                console.error("Upload error:", err);
             }
         }
-
     </script>
 </body>
 
