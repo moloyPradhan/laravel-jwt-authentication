@@ -425,4 +425,23 @@ class RestaurantController extends Controller
             ['basicDetails' => $restaurants]
         );
     }
+
+    public function restaurantImages(Request $request, $restaurantId)
+    {
+        $data = RestaurantImages::where('restaurant_uid', $restaurantId)->get();
+
+        $filteredData = $data->map(function ($data) {
+            return [
+                'uid'   => $data->uid,
+                'type'  => $data->type,
+                'image' => asset('storage/' . $data->file_path),
+            ];
+        });
+
+        return $this->successResponse(
+            200,
+            'Restaurant images',
+            ['images' => $filteredData]
+        );
+    }
 }

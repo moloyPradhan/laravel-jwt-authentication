@@ -50,6 +50,7 @@ Route::prefix('restaurants')->group(function () {
         // Route::patch('{restaurantId}/menus/{menuId}/restore', [RestaurantController::class, 'restoreMenu']);
 
         Route::get('{uid}/basic-details', [RestaurantController::class, 'restaurantBasicDetails']);
+        Route::get('{uid}/images', [RestaurantController::class, 'restaurantImages']);
 
         Route::post('{uid}/menus', [RestaurantController::class, 'createMenu']);
         Route::get('{uid}/menus', [RestaurantController::class, 'listMenu']);
