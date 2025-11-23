@@ -9,7 +9,7 @@
             <div class="text-xl font-bold">Menus</div>
             <button id="btnAdd" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">Add Item</button>
         </div>
-        <div id="menuContainer" class="space-y-2"></div>
+        <ul id="menuContainer" class="space-y-2"></ul>
     </div>
 
     <!-- Add/Edit Modal -->
@@ -25,6 +25,7 @@
         </div>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js"></script>
     <script type="module">
         import {
             httpRequest,
@@ -45,28 +46,35 @@
         async function fetchMenuItems() {
             const res = await httpRequest('/api/restaurants/{{ $restaurantId }}/menus');
             menus = res?.data?.menus || [];
+
+            if(menus.length == 0){
+                menuContainer.innerHTML=`<p class="mt-3 text-center">No menu available</p>`
+                return;
+            }
+
             renderMenuItems();
         }
 
         function renderMenuItems() {
             menuContainer.innerHTML = '';
-            menus.forEach(item => {
-                const card = document.createElement('div');
-                card.className = 'bg-white shadow-md rounded-lg p-5 flex justify-between items-center';
+            menus.forEach((item, idx) => {
+                const li = document.createElement('li');
+                li.setAttribute('data-id', item.uid);
+                li.className = 'bg-white shadow-md rounded-lg p-5 flex justify-between items-center cursor-move';
 
-                card.innerHTML = `
+                li.innerHTML = `
                     <div>
                         <h3 class="text-lg font-semibold">${item.name}</h3>
                     </div>
                     <div class="flex space-x-3">
                         <button class="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 edit-btn" data-id="${item.uid}" data-name="${item.name}">Edit</button>
                         <button class="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 delete-btn" data-id="${item.uid}">Delete</button>
+                        <span class="text-gray-400 ml-2 select-none">☰</span>
                     </div>
                 `;
-                menuContainer.appendChild(card);
+                menuContainer.appendChild(li);
             });
 
-            // Attach edit listeners
             document.querySelectorAll(".edit-btn").forEach(btn => {
                 btn.addEventListener("click", () => {
                     editItemId = btn.getAttribute('data-id');
@@ -76,7 +84,6 @@
                 });
             });
 
-            // Attach delete listeners
             document.querySelectorAll(".delete-btn").forEach(btn => {
                 btn.addEventListener("click", async () => {
                     const id = btn.getAttribute('data-id');
@@ -159,6 +166,35 @@
         }
 
         fetchMenuItems();
+
+        // Activate SortableJS after initial render
+        let sortable = null;
+
+        function activateSortable() {
+            if (sortable) sortable.destroy(); // Prevent duplicate
+            // Wait a tick for DOM rendering
+            setTimeout(() => {
+                sortable = Sortable.create(menuContainer, {
+                    animation: 150,
+                    handle: '.cursor-move, .text-gray-400',
+                    onEnd: function(evt) {
+                        // Get new order as array of UIDs
+                        const newOrder = [...menuContainer.children].map(li => li.getAttribute(
+                            'data-id'));
+
+
+                        console.log('New order:', newOrder);
+                    }
+                });
+            }, 10);
+        }
+
+        // Re-activate Sortable after each render
+        const oldRenderMenuItems = renderMenuItems;
+        renderMenuItems = function() {
+            oldRenderMenuItems();
+            activateSortable();
+        };
     </script>
 
 @endsection
