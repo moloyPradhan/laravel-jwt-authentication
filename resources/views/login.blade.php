@@ -19,7 +19,7 @@
             </label>
             <input type="email"
                 class="peer w-full px-3 py-3 border border-gray-300 rounded-md focus:border-blue-500 focus:outline-none"
-                id="email" name="email" placeholder="Email address" autocomplete="off" required />
+                id="email" name="email" placeholder="user@gmail.com" autocomplete="off" required />
 
         </div>
 

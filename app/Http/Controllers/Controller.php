@@ -84,4 +84,18 @@ class Controller extends BaseController
             'restaurantId' => $restaurantId,
         ]);
     }
+
+    public function sellerRestaurantMenuPage($restaurantId)
+    {
+        return view('seller.restaurantMenu', [
+            'restaurantId' => $restaurantId,
+        ]);
+    }
+
+    public function sellerRestaurantFoodPage($restaurantId)
+    {
+        return view('seller.restaurantFood', [
+            'restaurantId' => $restaurantId,
+        ]);
+    }
 }

@@ -22,12 +22,12 @@
                 class="block py-2 px-3 rounded hover:bg-blue-500 hover:text-white {{ request()->routeIs('sellerRestaurantPage') ? 'bg-blue-600 text-white' : 'text-gray-700' }}">
                 Dashboard
             </a>
-            <a href="{{ route('userChatList') }}"
-                class="block py-2 px-3 rounded hover:bg-blue-500 hover:text-white {{ request()->routeIs('userChatList*') ? 'bg-blue-600 text-white' : 'text-gray-700' }}">
+            <a href="{{ route('sellerRestaurantMenuPage', ['uid' => $restaurantId]) }}"
+                class="block py-2 px-3 rounded hover:bg-blue-500 hover:text-white {{ request()->routeIs('sellerRestaurantMenuPage') ? 'bg-blue-600 text-white' : 'text-gray-700' }}">
                 Menu
             </a>
-            <a href="{{ route('sellerDashboardPage') }}"
-                class="block py-2 px-3 rounded hover:bg-blue-500 hover:text-white {{ request()->routeIs('seler*foods') ? 'bg-blue-600 text-white' : 'text-gray-700' }}">
+            <a href="{{ route('sellerRestaurantFoodPage', ['uid' => $restaurantId]) }}"
+                class="block py-2 px-3 rounded hover:bg-blue-500 hover:text-white {{ request()->routeIs('sellerRestaurantFoodPage') ? 'bg-blue-600 text-white' : 'text-gray-700' }}">
                 Foods
             </a>
             <a href="{{ route('sellerDashboardPage') }}"

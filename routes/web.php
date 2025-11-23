@@ -36,12 +36,17 @@ Route::middleware(['web', 'authGuard'])->group(function () {
     Route::get('chat/{uid}', [Controller::class, 'userChat'])->name('userChat');
 
     Route::get('seller/dashboard', [Controller::class, 'sellerDashboardPage'])->name('sellerDashboardPage');
-    Route::get('seller/restaurant', [Controller::class, 'sellerAddRestaurantPage'])->name('sellerAddRestaurantPage');
-    Route::get('seller/restaurant/{uid}', [Controller::class, 'sellerRestaurantPage'])->name('sellerRestaurantPage');
-    Route::get('seller/restaurant/{uid}/profile', [Controller::class, 'sellerRestaurantProfilePage'])->name('sellerRestaurantProfilePage');
-    Route::get('seller/restaurant/{uid}/images', [Controller::class, 'sellerRestaurantImagePage'])->name('sellerRestaurantImagePage');
-    Route::get('seller/restaurant/{uid}/address', [Controller::class, 'sellerRestaurantAddressPage'])->name('sellerRestaurantAddressPage');
-    Route::get('seller/restaurant/{uid}/documents', [Controller::class, 'sellerRestaurantDocumentPage'])->name('sellerRestaurantDocumentPage');
+
+    Route::prefix('seller/restaurant')->group(function () {
+        Route::get('', [Controller::class, 'sellerAddRestaurantPage'])->name('sellerAddRestaurantPage');
+        Route::get('{uid}', [Controller::class, 'sellerRestaurantPage'])->name('sellerRestaurantPage');
+        Route::get('{uid}/profile', [Controller::class, 'sellerRestaurantProfilePage'])->name('sellerRestaurantProfilePage');
+        Route::get('{uid}/images', [Controller::class, 'sellerRestaurantImagePage'])->name('sellerRestaurantImagePage');
+        Route::get('{uid}/address', [Controller::class, 'sellerRestaurantAddressPage'])->name('sellerRestaurantAddressPage');
+        Route::get('{uid}/documents', [Controller::class, 'sellerRestaurantDocumentPage'])->name('sellerRestaurantDocumentPage');
+        Route::get('{uid}/menus', [Controller::class, 'sellerRestaurantMenuPage'])->name('sellerRestaurantMenuPage');
+        Route::get('{uid}/foods', [Controller::class, 'sellerRestaurantFoodPage'])->name('sellerRestaurantFoodPage');
+    });
 });
 
 Route::get('razorpay-payment', [RazorpayPaymentController::class, 'index']);
@@ -52,4 +57,3 @@ Route::post('razorpay-payment', [RazorpayPaymentController::class, 'store'])->na
 Route::get('/welcome', function () {
     return view('welcome');
 });
-
