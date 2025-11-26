@@ -47,6 +47,7 @@ Route::middleware(['web', 'authGuard'])->group(function () {
         Route::get('{uid}/menus', [Controller::class, 'sellerRestaurantMenuPage'])->name('sellerRestaurantMenuPage');
         Route::get('{uid}/foods', [Controller::class, 'sellerRestaurantFoodPage'])->name('sellerRestaurantFoodPage');
         Route::get('{uid}/add-food', [Controller::class, 'sellerRestaurantAddFoodPage'])->name('sellerRestaurantAddFoodPage');
+        Route::get('{restaurantId}/foods/{foodId}/images', [Controller::class, 'sellerFoodAddImagePage'])->name('sellerFoodAddImagePage');
     });
 });
 

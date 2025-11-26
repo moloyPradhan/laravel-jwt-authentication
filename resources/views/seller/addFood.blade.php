@@ -91,10 +91,14 @@
                     Food</button>
             </div>
         </form>
-        <div class="mt-6 hidden" id="resultMessage"></div>
     </div>
 
-    <script>
+    <script type="module">
+        import {
+            httpRequest,
+            showToast
+        } from '/js/httpClient.js';
+
         document.getElementById('addFoodForm').addEventListener('submit', function(e) {
             e.preventDefault();
             // Collect data and show as formatted JSON
@@ -103,13 +107,27 @@
             data.is_available = !!this.is_available.checked;
             data.tags = data.tags?.split(',').map(s => s.trim()).filter(Boolean) || [];
             data.menu = data.menu?.split(',').map(s => s.trim()).filter(Boolean) || [];
-            document.getElementById('resultMessage').classList.remove('hidden');
-            document.getElementById('resultMessage').innerHTML = `
-        <div class="bg-blue-50 text-blue-900 p-4 rounded shadow-sm text-xs"><pre>${JSON.stringify(data, null, 2)}</pre></div>
-    `;
+
+            addFood(data)
         });
+
+        async function addFood(data) {
+            try {
+                const res = await httpRequest('/api/restaurants/{{ $restaurantId }}/foods', {
+                    method: "POST",
+                    body: data
+                });
+                if (res.httpStatus >= 200 && res.httpStatus < 300) {
+                    showToast('success', 'Food saved successfully!');
+
+                    location.href = @json(route('sellerFoodAddImagePage', ['restaurantId' => $restaurantId])) + '/' + res?.data?.uid
+                }
+            } catch (error) {
+                console.log(error);
+            }
+        }
     </script>
 
-  
+
 
 @endsection

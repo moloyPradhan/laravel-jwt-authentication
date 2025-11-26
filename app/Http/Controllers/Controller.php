@@ -105,4 +105,10 @@ class Controller extends BaseController
             'restaurantId' => $restaurantId,
         ]);
     }
+
+    public function sellerFoodAddImagePage($restauratId, $foodId)
+    {
+        print_r($foodId);
+        die;
+    }
 }

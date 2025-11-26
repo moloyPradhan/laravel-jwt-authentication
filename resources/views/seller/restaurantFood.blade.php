@@ -19,6 +19,7 @@
         } from '/js/httpClient.js';
 
         const container = document.getElementById('foodContainer');
+        const currentUrl = @json(route('sellerRestaurantFoodPage', ['uid' => $restaurantId]));
 
         async function fetchMenuItems() {
             const res = await httpRequest('/api/restaurants/{{ $restaurantId }}/foods');
@@ -75,7 +76,11 @@
                     </div>
                     <div class="flex-1 flex flex-col pl-2">
                         <div class="flex justify-between w-full items-baseline">
-                            <span class="text-lg font-bold leading-tight">${food.name}</span>
+                            <span class="text-lg font-bold leading-tight">
+                                <a href="${currentUrl}/${food.uid}/images">
+                                    ${food.name}
+                                </a>
+                            </span>
                             <div>
                                 ${priceHtml}
                             </div>
