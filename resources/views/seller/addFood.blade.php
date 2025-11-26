@@ -78,11 +78,11 @@
                 <select name="menu" id="menuSelect" multiple autocomplete="off"
                     class="block w-full border border-gray-300 rounded px-3 py-2 focus:ring-green-500 focus:border-green-500 bg-white">
                     <!-- Example menu options -->
-                    <option value="123">Lunch Specials</option>
+                    {{-- <option value="123">Lunch Specials</option>
                     <option value="321">Dinner Combos</option>
                     <option value="555">Weekend Treats</option>
                     <option value="888">Veg Delights</option>
-                    <option value="132">Egg Lovers</option>
+                    <option value="132">Egg Lovers</option> --}}
                 </select>
             </div>
             <div class="pt-2 flex justify-end">
@@ -111,6 +111,25 @@
             addFood(data)
         });
 
+        async function fetchMenuItems() {
+            const res = await httpRequest('/api/restaurants/{{ $restaurantId }}/menus');
+            const menus = res?.data?.menus || [];
+
+            if (menus.length == 0) {
+                menuContainer.innerHTML = `<p class="mt-3 text-center">No menu available</p>`
+                return;
+            }
+
+            let html = "";
+            menus.forEach((item, idx) => {
+               html+=`<option value="${item.uid}>${item.name}</option>`
+            });
+            
+            document.getElementById('menuSelect').innerHTML = html;
+        }
+
+        fetchMenuItems();
+
         async function addFood(data) {
             try {
                 const res = await httpRequest('/api/restaurants/{{ $restaurantId }}/foods', {
@@ -120,7 +139,6 @@
                 if (res.httpStatus >= 200 && res.httpStatus < 300) {
                     showToast('success', 'Food saved successfully!');
 
-                    location.href = @json(route('sellerFoodAddImagePage', ['restaurantId' => $restaurantId])) + '/' + res?.data?.uid
                 }
             } catch (error) {
                 console.log(error);

@@ -45,4 +45,9 @@ class RestaurantFood extends Model
     {
         return $this->hasMany(RestaurantFoodImage::class, 'food_uid', 'uid');
     }
+
+    public function menus()
+    {
+        return $this->belongsToMany(RestaurantMenus::class, 'menu_food', 'food_id', 'menu_id', 'uid', 'uid');
+    }
 }

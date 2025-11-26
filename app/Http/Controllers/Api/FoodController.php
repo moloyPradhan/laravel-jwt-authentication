@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Storage;
 use App\Models\Restaurant;
 use App\Models\RestaurantFood;
 use App\Models\RestaurantFoodImage;
+use App\Models\MenuFood;
 
 class FoodController extends Controller
 {
@@ -33,6 +34,7 @@ class FoodController extends Controller
             'tags'              => 'nullable|array',
             'tags.*'            => 'string|max:50',
             'status'            => 'required|in:active,inactive,deleted',
+            'menu'              => 'required'
         ]);
 
         if ($validator->fails()) {
@@ -58,6 +60,8 @@ class FoodController extends Controller
         $preparation_time = $request->input('preparation_time');
         $tags             = $request->input('tags');
         $status           = $request->input('status');
+
+        $menuIds          = $request->input('menu');
 
         $slug = Str::slug($name);
         $originalSlug = $slug;
@@ -91,6 +95,8 @@ class FoodController extends Controller
             'tags'             => !empty($tags) ? json_encode($tags) : null,
             'status'           => $status,
         ]);
+
+        $food->menus()->sync($menuIds);
 
         return $this->successResponse(201, 'Food item created successfully', [
             'food' => $food
