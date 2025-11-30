@@ -25,6 +25,8 @@ Route::middleware(['web', 'redirectIfAuthenticatedCookie'])
 
 // public routes
 Route::get('/', [Controller::class, 'homePage'])->name('homePage');
+Route::get('/restaurants', [Controller::class, 'homePage'])->name('homePage');
+Route::get('restaurants/{uid}', [Controller::class, 'restaurantFoodsPage'])->name('restaurantFoodsPage');
 
 
 // Protected routes here
@@ -34,7 +36,6 @@ Route::middleware(['web', 'authGuard'])->group(function () {
 
     Route::get('chat', [Controller::class, 'listChatUser'])->name('userChatList');
     Route::get('chat/{uid}', [Controller::class, 'userChat'])->name('userChat');
-
     Route::get('seller/dashboard', [Controller::class, 'sellerDashboardPage'])->name('sellerDashboardPage');
 
     Route::prefix('seller/restaurant')->group(function () {

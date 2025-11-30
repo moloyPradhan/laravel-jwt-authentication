@@ -106,7 +106,9 @@
             data.is_veg = !!this.is_veg.checked;
             data.is_available = !!this.is_available.checked;
             data.tags = data.tags?.split(',').map(s => s.trim()).filter(Boolean) || [];
-            data.menu = data.menu?.split(',').map(s => s.trim()).filter(Boolean) || [];
+
+            const menuSelect = document.getElementById('menuSelect');
+            data.menu = Array.from(menuSelect.selectedOptions).map(opt => opt.value);
 
             addFood(data)
         });
@@ -122,9 +124,9 @@
 
             let html = "";
             menus.forEach((item, idx) => {
-               html+=`<option value="${item.uid}>${item.name}</option>`
+                html += `<option value="${item.uid}">${item.name}</option>`
             });
-            
+
             document.getElementById('menuSelect').innerHTML = html;
         }
 
@@ -136,10 +138,12 @@
                     method: "POST",
                     body: data
                 });
+
                 if (res.httpStatus >= 200 && res.httpStatus < 300) {
                     showToast('success', 'Food saved successfully!');
-
+                    window.location.href = `foods/${res.data.food.uid}/images`
                 }
+
             } catch (error) {
                 console.log(error);
             }

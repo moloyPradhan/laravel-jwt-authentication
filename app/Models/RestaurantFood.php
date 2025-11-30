@@ -48,6 +48,8 @@ class RestaurantFood extends Model
 
     public function menus()
     {
-        return $this->belongsToMany(RestaurantMenus::class, 'menu_food', 'food_id', 'menu_id', 'uid', 'uid');
+        return $this->belongsToMany(RestaurantMenus::class, 'menu_food', 'food_id', 'menu_id', 'uid', 'uid')
+            ->using(\App\Models\MenuFoodPivot::class)
+            ->withTimestamps();
     }
 }

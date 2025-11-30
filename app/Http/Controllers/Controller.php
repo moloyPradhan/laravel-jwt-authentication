@@ -106,9 +106,18 @@ class Controller extends BaseController
         ]);
     }
 
-    public function sellerFoodAddImagePage($restauratId, $foodId)
+    public function sellerFoodAddImagePage($restaurantId, $foodId)
     {
-        print_r($foodId);
-        die;
+        return view('seller.addFoodImage', [
+            'restaurantId' => $restaurantId,
+            'foodId'       => $foodId
+        ]);
+    }
+
+    public function restaurantFoodsPage($restaurantId)
+    {
+        return view('restaurantFood', [
+            'restaurantId' => $restaurantId,
+        ]);
     }
 }
