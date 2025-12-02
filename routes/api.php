@@ -38,12 +38,13 @@ Route::middleware('auth:api')->group(function () {
 
 Route::prefix('restaurants')->group(function () {
     Route::get('/', [RestaurantController::class, 'index']);
+    Route::get('{uid}/foods', [FoodController::class, 'listRestaurantFood']);
+    Route::get('{uid}/menus', [RestaurantController::class, 'listMenu']);
+
     Route::middleware('auth:api')->group(function () {
 
         Route::post('{restaurantId}/foods/{foodId}/images', [FoodController::class, 'addFoodImage']);
         Route::post('{uid}/foods', [FoodController::class, 'addFood']);
-        Route::get('{uid}/foods', [FoodController::class, 'listRestaurantFood']);
-
 
         // Route::patch('{restaurantId}/menus/{menuId}', [RestaurantController::class, 'updateMenu']);
         // Route::delete('{restaurantId}/menus/{menuId}', [RestaurantController::class, 'softDeleteMenu']);
@@ -53,7 +54,7 @@ Route::prefix('restaurants')->group(function () {
         Route::get('{uid}/images', [RestaurantController::class, 'restaurantImages']);
 
         Route::post('{uid}/menus', [RestaurantController::class, 'createMenu']);
-        Route::get('{uid}/menus', [RestaurantController::class, 'listMenu']);
+
         Route::patch('{restaurantId}/menus/{menuId}', [RestaurantController::class, 'updateMenu']);
         Route::delete('{restaurantId}/menus/{menuId}', [RestaurantController::class, 'softDeleteMenu']);
         Route::patch('{restaurantId}/menus/{menuId}/restore', [RestaurantController::class, 'restoreMenu']);

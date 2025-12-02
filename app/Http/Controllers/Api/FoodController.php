@@ -111,6 +111,7 @@ class FoodController extends Controller
             'status'         => 'active'
         ])
             ->with('images')
+            ->with('menus')
             ->get();
 
         $foods = $foods->map(function ($food) {
