@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Restaurant Foods Page')
+@section('title', 'Restaurant Foods')
 
 @section('content')
 
@@ -8,18 +8,21 @@
         /* Floating Round Button */
         .sw-menu-btn {
             position: fixed;
-            bottom: 30px;
-            right: 30px;
-            background: black;
-            color: white;
+            background: #111827;
+            /* neutral-900 */
+            color: #fff;
             border: none;
-            width: 70px;
-            height: 70px;
+            width: 64px;
+            height: 64px;
             border-radius: 50%;
-            font-weight: bold;
-            font-size: 14px;
+            font-weight: 600;
+            font-size: 13px;
             cursor: pointer;
             z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
         }
 
         /* Fullscreen Dim Background */
@@ -34,56 +37,140 @@
             justify-content: center;
             align-items: center;
             z-index: 99999;
+            padding: 20px;
         }
 
         /* Menu Box */
         .sw-menu-box {
-            width: 350px;
+            width: 360px;
+            max-height: 80vh;
+            overflow: auto;
             background: #0B0910;
             color: white;
-            border-radius: 25px;
-            padding: 25px;
-            box-shadow: 0px 4px 30px rgba(0, 0, 0, 0.6);
-        }
-
-        /* Header */
-        .sw-menu-header {
-            display: flex;
-            justify-content: space-between;
-            font-size: 22px;
-            font-weight: bold;
-            margin-bottom: 20px;
-        }
-
-        .sw-menu-header button {
-            background: transparent;
-            border: none;
-            color: white;
-            font-size: 18px;
-            cursor: pointer;
+            border-radius: 16px;
+            padding: 18px;
+            box-shadow: 0px 8px 40px rgba(0, 0, 0, 0.6);
         }
 
         /* Menu List */
         .sw-menu-list div {
             display: flex;
             justify-content: space-between;
-            padding: 10px 0;
-            font-size: 17px;
+            align-items: center;
+            padding: 10px 8px;
+            font-size: 15px;
             cursor: pointer;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
         }
 
         .sw-menu-list div:last-child {
             border-bottom: none;
         }
+
+        .fixed-btn {
+            position: fixed;
+            right: 20px;
+            z-index: 9999;
+        }
+
+        /* Cart top, menu below */
+        #floatingCart {
+            bottom: 110px !important;
+        }
+
+        #menuFloatBtn {
+            bottom: 30px !important;
+            right: 20px !important;
+        }
+
+        /* Slim rectangular card tweaks */
+        .food-card {
+            background: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
+            overflow: hidden;
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            padding: 8px;
+        }
+
+        .food-card img {
+            width: 96px;
+            height: 72px;
+            object-fit: cover;
+            border-radius: 8px;
+            flex-shrink: 0;
+        }
+
+        .food-card .meta {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            width: 100%;
+        }
+
+        .food-card .meta .title {
+            font-weight: 600;
+            font-size: 14px;
+            color: #111827;
+            line-height: 1.1;
+        }
+
+        .food-card .meta .price {
+            font-weight: 600;
+            font-size: 13px;
+            color: #0f172a;
+        }
+
+        .food-card .meta .actions {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            margin-top: 6px;
+        }
+
+        .add-btn-small {
+            padding: 6px 10px;
+            border-radius: 8px;
+            background: #111827;
+            color: #fff;
+            font-size: 13px;
+            border: none;
+            cursor: pointer;
+        }
+
+        .qty-box {
+            display: inline-flex;
+            align-items: center;
+            gap: 18px;
+            background: #f3f4f6;
+            padding: 4px 8px;
+            border-radius: 8px;
+            font-weight: 600;
+        }
+
+        /* small responsive adjustments */
+        @media (max-width: 640px) {
+            .sw-menu-box {
+                width: 100%;
+                padding: 12px
+            }
+
+            .food-card img {
+                width: 88px;
+                height: 64px
+            }
+        }
     </style>
 
     <!-- Floating Cart Icon -->
     <div id="floatingCart"
-        class="fixed bottom-24 right-6 bg-gray-800 text-white w-12 h-12 rounded-full shadow-lg flex items-center justify-center cursor-pointer hover:bg-gray-900 transition">
-        <div class="relative">
+        class="fixed-btn bg-gray-800 text-white w-12 h-12 rounded-full shadow-lg flex items-center justify-center cursor-pointer hover:bg-gray-900 transition">
+        <div class="relative flex items-center justify-center">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
-                class="w-7 h-7">
+                class="w-6 h-6">
                 <path stroke-linecap="round" stroke-linejoin="round"
                     d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437m0 0L6.75 14.25m-1.644-8.978h12.276c.938 0 1.636.88 1.42 1.792l-1.2 5.013a1.5 1.5 0 01-1.46 1.17H7.012m0 0L6.75 17.25m.262-2.988H18m-11.25 0A1.5 1.5 0 105.25 18a1.5 1.5 0 001.5-1.5zm10.5 0A1.5 1.5 0 1015.75 18a1.5 1.5 0 001.5-1.5z" />
             </svg>
@@ -95,14 +182,14 @@
         </div>
     </div>
 
-    <button id="menuFloatBtn" class="sw-menu-btn">MENU</button>
+    <button id="menuFloatBtn" class="sw-menu-btn fixed-btn">MENU</button>
 
     <!-- Swiggy Style Popup Menu -->
     <div id="swMenuPopup" class="sw-menu-popup">
         <div class="sw-menu-box">
-            <div class="sw-menu-header">
-                <span>Recommended</span>
-                <button id="swCloseMenu">✕</button>
+            <div class="sw-menu-header flex justify-between items-center mb-3">
+                <span class="text-lg font-semibold">Menu</span>
+                <button id="swCloseMenu" class="text-white text-xl">✕</button>
             </div>
             <div id="swMenuList" class="sw-menu-list"></div>
         </div>
@@ -112,7 +199,7 @@
     <nav class="flex mb-6" aria-label="Breadcrumb">
         <ol class="inline-flex items-center space-x-1 md:space-x-3">
             <li class="inline-flex items-center">
-                <a href="/" class="inline-flex items-center text-sm font-medium text-gray-700 hover:text-blue-600">
+                <a href="/" class="inline-flex items-center text-sm font-medium text-gray-700 hover:text-gray-600">
                     <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
                         <path
                             d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z">
@@ -130,7 +217,7 @@
                             clip-rule="evenodd"></path>
                     </svg>
                     <a href="/restaurants"
-                        class="ml-1 text-sm font-medium text-gray-700 hover:text-blue-600 md:ml-2">Restaurants</a>
+                        class="ml-1 text-sm font-medium text-gray-700 hover:text-gray-600 md:ml-2">Restaurants</a>
                 </div>
             </li>
 
@@ -148,10 +235,10 @@
     </nav>
 
     <!-- Food Section -->
-    <div id="menuFoodContainer" class="space-y-10">
+    <div id="menuFoodContainer" class="space-y-6">
 
         <!-- Skeleton Loader initially -->
-        <div id="foodSkeleton" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 p-4">
+        <div id="foodSkeleton" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-4 p-4">
             @for ($i = 0; $i < 6; $i++)
                 <div class="animate-pulse bg-white rounded-xl shadow overflow-hidden flex flex-col">
                     <div class="h-40 bg-gray-300 w-full"></div>
@@ -185,53 +272,54 @@
             const imageUrl = mainImage?.image_url || "/images/placeholder.jpg";
 
             return `
-            <div class="bg-white rounded-xl shadow hover:shadow-lg transition overflow-hidden flex flex-col">
-                <img src="${imageUrl}" class="h-40 w-full object-cover" />
+            <div class="food-card" id="food_${food.id}">
+                <img src="${imageUrl}" alt="${(food.name||'Food').replace(/"/g,'')}">
 
-                <div class="p-4 flex flex-col flex-grow">
-                    <h3 class="text-lg font-semibold text-gray-900">${food.name}</h3>
+                <div class="meta">
+                    <div>
+                        <div class="title">${food.name}</div>
+                        <div class="price">₹${"" /* placeholder for spacing */}
+                            ${food.discount_price ? `${food.discount_price}
+                                <span class="line-through text-xs text-gray-400">${food.price}</span>` : `<span>${food.price}</span>`}
+                        </div>
 
-                    <div class="mt-2 text-gray-900 font-medium">
-                        ${
-                            food.discount_price
-                                ? `
-                                                    <span class="text-green-600 font-semibold">${food.discount_price} ${food.currency}</span>
-                                                    <span class="line-through text-sm text-gray-400 ml-2">${food.price}</span>
-                                                  `
-                                : `<span>${food.price} ${food.currency}</span>`
-                        }
+                        ${food.preparation_time?`<span class="text-xs">Preparation Time : ${food.preparation_time} Min</span>`: ``}
+                        
                     </div>
 
-                    <div class="mt-auto pt-3 cart-btn-wrapper" data-food-id="${food.id}">
-                        <button class="add-to-cart px-4 py-2 w-full bg-gray-800 text-white rounded-lg hover:bg-gray-900 transition"
-                            data-food-id="${food.id}">Add to Cart</button>
+                    <div class="actions">
+                        <div class="small-desc text-sm text-gray-500">${food.description || ''}</div>
+
+                        <div class="action-controls" data-food-id="${food.id}">
+                            <button class="add-btn-small" data-food-id="${food.id}">Add To Cart</button>
+                        </div>
                     </div>
                 </div>
             </div>
         `;
         }
 
-        function updateButtonUI(foodId) {
-            const wrapper = document.querySelector(`.cart-btn-wrapper[data-food-id="${foodId}"]`);
+        function replaceWithQty(foodId) {
+            const wrapper = document.querySelector(`.action-controls[data-food-id="${foodId}"]`);
+            if (!wrapper) return;
 
+            wrapper.innerHTML = `
+                <div class="qty-box" data-food-id="${foodId}">
+                    <button class="qty-minus" data-food-id="${foodId}" aria-label="decrease">-</button>
+                    <span class="qty-count">${cart[foodId] || 0}</span>
+                    <button class="qty-plus" data-food-id="${foodId}" aria-label="increase">+</button>
+                </div>
+            `;
+        }
+
+        function updateButtonUI(foodId) {
+            const wrapper = document.querySelector(`.action-controls[data-food-id="${foodId}"]`);
             if (!wrapper) return;
 
             if (cart[foodId]) {
-                wrapper.innerHTML = `
-                <div class="flex items-center justify-between bg-gray-100 rounded-lg px-3 py-2">
-                    <button class="minus-btn w-8 h-8 bg-gray-300 rounded hover:bg-gray-400 transition flex items-center justify-center"
-                        data-food-id="${foodId}">-</button>
-
-                    <span class="text-gray-800 font-semibold">${cart[foodId]}</span>
-
-                    <button class="plus-btn w-8 h-8 bg-gray-300 rounded hover:bg-gray-400 transition flex items-center justify-center"
-                        data-food-id="${foodId}">+</button>
-                </div>`;
+                replaceWithQty(foodId);
             } else {
-                wrapper.innerHTML = `
-                <button class="add-to-cart px-4 py-2 w-full bg-gray-800 text-white rounded-lg hover:bg-gray-900 transition"
-                    data-food-id="${foodId}">Add to Cart</button>
-            `;
+                wrapper.innerHTML = `<button class="add-btn-small" data-food-id="${foodId}">Add To Cart</button>`;
             }
 
             updateCartBadge();
@@ -244,20 +332,31 @@
 
         function handleQuantityChange(foodId, delta) {
             if (!cart[foodId]) return;
-
             cart[foodId] += delta;
             if (cart[foodId] <= 0) delete cart[foodId];
-
             updateButtonUI(foodId);
         }
 
+        // Event delegation for add/qty buttons
         document.addEventListener("click", function(e) {
-            if (e.target.classList.contains("add-to-cart")) {
-                handleAddToCart(e.target.dataset.foodId);
-            } else if (e.target.classList.contains("minus-btn")) {
-                handleQuantityChange(e.target.dataset.foodId, -1);
-            } else if (e.target.classList.contains("plus-btn")) {
-                handleQuantityChange(e.target.dataset.foodId, 1);
+            const target = e.target;
+
+            if (target.matches('.add-btn-small')) {
+                const id = target.dataset.foodId;
+                handleAddToCart(id);
+                return;
+            }
+
+            if (target.matches('.qty-minus')) {
+                const id = target.dataset.foodId;
+                handleQuantityChange(id, -1);
+                return;
+            }
+
+            if (target.matches('.qty-plus')) {
+                const id = target.dataset.foodId;
+                handleQuantityChange(id, 1);
+                return;
             }
         });
 
@@ -282,30 +381,32 @@
                 });
 
                 foods.forEach(food => {
-                    food.menus.forEach(m => {
-                        if (menuFoodMap[m.uid]) {
-                            menuFoodMap[m.uid].foods.push(food);
-                        }
+                    (food.menus || []).forEach(m => {
+                        if (menuFoodMap[m.uid]) menuFoodMap[m.uid].foods.push(food);
                     });
                 });
 
-                // Render UI
+                // Render UI sections
                 let finalHtml = "";
 
                 Object.values(menuFoodMap).forEach(group => {
                     if (group.foods.length === 0) return;
 
                     finalHtml += `
-                    <div>
-                        <h2 class="text-2xl font-bold text-gray-800 mb-4">${group.menu.name}</h2>
-                        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-                            ${group.foods.map(f => generateFoodCard(f)).join("")}
+                        <div id="menu_${group.menu.uid}">
+                            <h2 class="text-xl font-semibold text-gray-800 mb-3">${group.menu.name}</h2>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
+                                ${group.foods.map(f => generateFoodCard(f)).join("")}
+                            </div>
                         </div>
-                    </div>
-                `;
+                    `;
                 });
 
+                buildSwiggyMenuPopup(menus, menuFoodMap);
                 document.getElementById("menuFoodContainer").innerHTML = finalHtml;
+
+                // After rendering, ensure cart UI for any pre-existing cart items
+                Object.keys(cart).forEach(fid => updateButtonUI(fid));
 
             } catch (err) {
                 console.error("Error loading menu foods:", err);
@@ -314,19 +415,19 @@
 
         loadMenuFoods();
 
-
         function buildSwiggyMenuPopup(menus, menuFoodMap) {
             let html = "";
 
             menus.forEach(menu => {
                 const count = menuFoodMap[menu.uid]?.foods?.length || 0;
-
-                html += `
-            <div data-scroll="menu_${menu.uid}">
-                <span>${menu.name}</span>
-                <span>${count}</span>
-            </div>
-        `;
+                if (count > 0) {
+                    html += `
+                        <div data-scroll="menu_${menu.uid}" class="hover:bg-gray-800/20">
+                            <span>${menu.name}</span>
+                            <span class="text-sm text-gray-300">${count}</span>
+                        </div>
+                    `;
+                }
             });
 
             document.getElementById("swMenuList").innerHTML = html;
@@ -336,12 +437,26 @@
                 item.addEventListener("click", () => {
                     const targetId = item.dataset.scroll;
 
+                    // hide popup first
                     document.getElementById("swMenuPopup").style.display = "none";
 
-                    document.getElementById(targetId)
-                        .scrollIntoView({
-                            behavior: "smooth"
+                    // try to scroll to target if exists
+                    const targetEl = document.getElementById(targetId);
+                    if (targetEl) {
+                        targetEl.scrollIntoView({
+                            behavior: "smooth",
+                            block: "start"
                         });
+                    } else {
+                        // fallback: try small timeout in case content still rendering
+                        setTimeout(() => {
+                            const t2 = document.getElementById(targetId);
+                            if (t2) t2.scrollIntoView({
+                                behavior: "smooth",
+                                block: "start"
+                            });
+                        }, 120);
+                    }
                 });
             });
         }
@@ -361,8 +476,6 @@
                 document.getElementById("swMenuPopup").style.display = "none";
             }
         };
-
-        buildSwiggyMenuPopup(menus, menuFoodMap);
     </script>
 
 @endsection

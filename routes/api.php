@@ -7,6 +7,7 @@ use App\Http\Controllers\Api\RestaurantController;
 use App\Http\Controllers\Api\FoodController;
 use App\Http\Controllers\Api\MessageController;
 use App\Http\Controllers\Api\UserController;
+use App\Http\Controllers\Api\CartController;
 
 Route::prefix('auth')->group(function () {
     Route::post('verify', [AuthController::class, 'verifyUser']);
@@ -38,6 +39,7 @@ Route::middleware('auth:api')->group(function () {
 
 Route::prefix('restaurants')->group(function () {
     Route::get('/', [RestaurantController::class, 'index']);
+
     Route::get('{uid}/foods', [FoodController::class, 'listRestaurantFood']);
     Route::get('{uid}/menus', [RestaurantController::class, 'listMenu']);
 
@@ -65,6 +67,25 @@ Route::prefix('restaurants')->group(function () {
         Route::post('{uid}/addresses', [AddressController::class, 'addRestaurantAddress']);
     });
 });
+
+Route::middleware('auth.optional')->group(function () {
+
+    Route::post(
+        'restaurants/{restaurantId}/foods/{foodId}/cart',
+        [CartController::class, 'addFoodToCart']
+    );
+
+    Route::get(
+        'restaurants/{restaurantId}/cart-items',
+        [CartController::class, 'getRestaurantCartItems']
+    );
+
+    Route::delete(
+        'cart-items/{uid}',
+        [CartController::class, 'removeFoodItemFromCart']
+    );
+});
+
 
 Route::middleware('auth:api')->group(function () {
     Route::get('/messages/{roomId}', [MessageController::class, 'getMessages']);

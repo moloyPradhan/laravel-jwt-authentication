@@ -6,24 +6,26 @@ use Illuminate\Support\Facades\Cookie;
 
 class AuthCookieService
 {
-    protected bool $secure;
-    protected bool $httpOnly;
-    protected string $sameSite;
+    /**
+     * Set these properly in production
+     */
+    protected bool $secure   = false; // true in HTTPS
+    protected bool $httpOnly = true;
+    protected string $sameSite = 'Lax';
 
-    public function __construct()
-    {
-        $this->secure = false;
-        $this->httpOnly = true;
-        $this->sameSite = 'Lax';
-    }
-
-    public function make(string $name, string $value, int $minutes)
-    {
+    /**
+     * Base cookie creator
+     */
+    protected function make(
+        string $name,
+        string $value,
+        int $minutes
+    ) {
         return Cookie::make(
             $name,
             $value,
             $minutes,
-            "/",
+            '/',
             null,
             $this->secure,
             $this->httpOnly,
@@ -32,10 +34,9 @@ class AuthCookieService
         );
     }
 
-    public function forget(string $name)
-    {
-        return Cookie::forget($name);
-    }
+    /* =====================================================
+       AUTH TOKENS (JWT) – FOR LOGGED-IN USERS ONLY
+    ===================================================== */
 
     public function makeAccessToken(string $token, int $ttl)
     {
@@ -44,25 +45,59 @@ class AuthCookieService
 
     public function makeRefreshToken(string $token, int $ttl)
     {
-        // Refresh token may require more relaxed SameSite policy if used cross-domain
-        return Cookie::make(
-            'refresh_token',
-            $token,
-            $ttl,
-            null,
-            null,
-            $this->secure,
-            $this->httpOnly,
-            false,
-            'Lax'
+        return $this->make('refresh_token', $token, $ttl);
+    }
+
+    /* =====================================================
+       GUEST UID COOKIE (SEPARATE – IMPORTANT)
+    ===================================================== */
+
+    /**
+     * Persist guest UID (30 days)
+     */
+    public function setGuestUid(string $guestUid): void
+    {
+        Cookie::queue(
+            Cookie::make(
+                'guest_uid',
+                $guestUid,
+                60 * 24 * 30, // 30 days
+                '/',
+                null,
+                $this->secure,
+                false, // readable by JS if needed
+                false,
+                $this->sameSite
+            )
         );
     }
 
-    public function forgetAll()
+    /**
+     * Get guest UID from request
+     */
+    public function getGuestUid($request): ?string
+    {
+        return $request->cookie('guest_uid');
+    }
+
+    /**
+     * Forget guest UID (on login / logout)
+     */
+    public function forgetGuestUid(): void
+    {
+        Cookie::queue(Cookie::forget('guest_uid'));
+    }
+
+    /* =====================================================
+       CLEAR ALL AUTH COOKIES
+    ===================================================== */
+
+    public function forgetAll(): array
     {
         return [
-            $this->forget('access_token'),
-            $this->forget('refresh_token'),
+            Cookie::forget('access_token'),
+            Cookie::forget('refresh_token'),
+            Cookie::forget('guest_uid'),
         ];
     }
 }

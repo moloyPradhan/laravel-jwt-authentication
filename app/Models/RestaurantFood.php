@@ -52,4 +52,13 @@ class RestaurantFood extends Model
             ->using(\App\Models\MenuFoodPivot::class)
             ->withTimestamps();
     }
+
+    public function cartItems()
+    {
+        return $this->hasMany(
+            Cart::class,
+            'food_uid', // FK on cart_items table
+            'uid'       // PK on restaurant_foods table
+        );
+    }
 }
