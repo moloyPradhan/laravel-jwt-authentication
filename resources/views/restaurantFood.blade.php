@@ -166,7 +166,7 @@
     </style>
 
     <!-- Floating Cart Icon -->
-    <div id="floatingCart"
+    <a id="floatingCart" href="{{ route('cartItemsPage', ['uid' => $restaurantId]) }}"
         class="fixed-btn bg-gray-800 text-white w-12 h-12 rounded-full shadow-lg flex items-center justify-center cursor-pointer hover:bg-gray-900 transition">
         <div class="relative flex items-center justify-center">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
@@ -180,7 +180,7 @@
                 0
             </span>
         </div>
-    </div>
+    </a>
 
     <button id="menuFloatBtn" class="sw-menu-btn fixed-btn">MENU</button>
 
@@ -260,11 +260,14 @@
             httpRequest
         } from "/js/httpClient.js";
 
+        const restaurantId = @json($restaurantId);
+
         let cart = {};
 
         function updateCartBadge() {
-            const total = Object.values(cart).reduce((a, b) => a + b, 0);
-            document.getElementById("cartCount").innerText = total;
+            // const total = Object.values(cart).reduce((a, b) => a + b, 0);
+            const totalItems = Object.keys(cart).length;
+            document.getElementById("cartCount").innerText = totalItems;
         }
 
         function generateFoodCard(food) {
@@ -279,8 +282,10 @@
                     <div>
                         <div class="title">${food.name}</div>
                         <div class="price">₹${"" /* placeholder for spacing */}
-                            ${food.discount_price ? `${food.discount_price}
-                                <span class="line-through text-xs text-gray-400">${food.price}</span>` : `<span>${food.price}</span>`}
+                            ${food.discount_price ? 
+                                    `${food.discount_price}
+                                                                <span class="line-through text-xs text-gray-400">${food.price}</span>` : `<span>${food.price}</span>`
+                                }
                         </div>
 
                         ${food.preparation_time?`<span class="text-xs">Preparation Time : ${food.preparation_time} Min</span>`: ``}
@@ -290,8 +295,8 @@
                     <div class="actions">
                         <div class="small-desc text-sm text-gray-500">${food.description || ''}</div>
 
-                        <div class="action-controls" data-food-id="${food.id}">
-                            <button class="add-btn-small" data-food-id="${food.id}">Add To Cart</button>
+                        <div class="action-controls" data-food-id="${food.uid}">
+                            <button class="add-btn-small" data-food-id="${food.uid}">Add To Cart</button>
                         </div>
                     </div>
                 </div>
@@ -300,34 +305,67 @@
         }
 
         function replaceWithQty(foodId) {
-            const wrapper = document.querySelector(`.action-controls[data-food-id="${foodId}"]`);
-            if (!wrapper) return;
+            const wrappers = document.querySelectorAll(
+                `.action-controls[data-food-id="${foodId}"]`
+            );
 
-            wrapper.innerHTML = `
-                <div class="qty-box" data-food-id="${foodId}">
-                    <button class="qty-minus" data-food-id="${foodId}" aria-label="decrease">-</button>
-                    <span class="qty-count">${cart[foodId] || 0}</span>
-                    <button class="qty-plus" data-food-id="${foodId}" aria-label="increase">+</button>
-                </div>
-            `;
+            if (!wrappers.length) return;
+
+            wrappers.forEach(wrapper => {
+                wrapper.innerHTML = `
+                    <div class="qty-box" data-food-id="${foodId}">
+                        <button class="qty-minus" data-food-id="${foodId}" aria-label="decrease">-</button>
+                        <span class="qty-count">${cart[foodId] || 0}</span>
+                        <button class="qty-plus" data-food-id="${foodId}" aria-label="increase">+</button>
+                    </div>
+                `;
+            });
         }
 
         function updateButtonUI(foodId) {
-            const wrapper = document.querySelector(`.action-controls[data-food-id="${foodId}"]`);
-            if (!wrapper) return;
+            const wrappers = document.querySelectorAll(
+                `.action-controls[data-food-id="${foodId}"]`
+            );
 
-            if (cart[foodId]) {
-                replaceWithQty(foodId);
-            } else {
-                wrapper.innerHTML = `<button class="add-btn-small" data-food-id="${foodId}">Add To Cart</button>`;
-            }
+            if (!wrappers.length) return;
+
+            wrappers.forEach(wrapper => {
+                if (cart[foodId]) {
+                    replaceWithQty(foodId);
+                } else {
+                    wrapper.innerHTML = `
+                        <button class="add-btn-small" data-food-id="${foodId}">
+                            Add To Cart
+                        </button>
+                    `;
+                }
+            });
 
             updateCartBadge();
         }
 
+        async function addOrUpdateCartItem(foodId) {
+            try {
+                const quantity = cart[foodId] || 0;
+                const res = await httpRequest(`/api/restaurants/{{ $restaurantId }}/foods/${foodId}/cart`, {
+                    method: "POST",
+                    body: {
+                        quantity
+                    }
+                });
+
+                fetchCartItems();
+
+            } catch (error) {
+                console.log(error);
+            }
+        }
+
+
         function handleAddToCart(foodId) {
             cart[foodId] = (cart[foodId] || 0) + 1;
             updateButtonUI(foodId);
+            addOrUpdateCartItem(foodId);
         }
 
         function handleQuantityChange(foodId, delta) {
@@ -335,6 +373,8 @@
             cart[foodId] += delta;
             if (cart[foodId] <= 0) delete cart[foodId];
             updateButtonUI(foodId);
+            addOrUpdateCartItem(foodId);
+
         }
 
         // Event delegation for add/qty buttons
@@ -405,8 +445,7 @@
                 buildSwiggyMenuPopup(menus, menuFoodMap);
                 document.getElementById("menuFoodContainer").innerHTML = finalHtml;
 
-                // After rendering, ensure cart UI for any pre-existing cart items
-                Object.keys(cart).forEach(fid => updateButtonUI(fid));
+                fetchCartItems();
 
             } catch (err) {
                 console.error("Error loading menu foods:", err);
@@ -414,6 +453,23 @@
         }
 
         loadMenuFoods();
+
+        async function fetchCartItems() {
+            try {
+
+                const res = await httpRequest(`/api/restaurants/{{ $restaurantId }}/cart-items`);
+                const items = res?.data?.items || [];
+
+                items.forEach((item, index) => {
+                    cart[item.food_uid] = item.quantity;
+                });
+
+                Object.keys(cart).forEach(fid => updateButtonUI(fid));
+
+            } catch (error) {
+                console.log(error);
+            }
+        }
 
         function buildSwiggyMenuPopup(menus, menuFoodMap) {
             let html = "";

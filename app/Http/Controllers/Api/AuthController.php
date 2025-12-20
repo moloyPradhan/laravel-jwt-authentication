@@ -13,6 +13,8 @@ use App\Models\RefreshToken;
 use App\Services\AuthCookieService;
 use App\Traits\ApiResponse;
 
+use App\Models\Cart;
+
 use Tymon\JWTAuth\Facades\JWTAuth;
 
 class AuthController extends Controller
@@ -141,6 +143,17 @@ class AuthController extends Controller
             'expires_at' => now()->addMinutes($refreshTtl),
             'revoked'    => false,
         ]);
+
+        $guestUid = $request->cookie('guest_uid');
+
+        if ($guestUid) {
+            Cart::where('guest_uid', $guestUid)
+                ->update([
+                    'user_uid'  => $user->uid,
+                    'guest_uid' => null, // optional but recommended
+                ]);
+        }
+
 
         $accessCookie  = $cookieService->makeAccessToken($token, $accessTtl);
         $refreshCookie = $cookieService->makeRefreshToken($refreshTokenValue, $refreshTtl);

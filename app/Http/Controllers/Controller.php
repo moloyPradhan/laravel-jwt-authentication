@@ -120,4 +120,11 @@ class Controller extends BaseController
             'restaurantId' => $restaurantId,
         ]);
     }
+
+    public function cartItemsPage($restaurantId)
+    {
+        return view('cart', [
+            'restaurantId' => $restaurantId,
+        ]);
+    }
 }

@@ -19,6 +19,7 @@ class CartController extends Controller
     /* =====================================================
        ADD / UPDATE CART ITEM
     ===================================================== */
+
     public function addFoodToCart(Request $request, $restaurantId, $foodId)
     {
         $validated = $request->validate([
@@ -45,9 +46,22 @@ class CartController extends Controller
         $user = $request->user();
 
         /* =========================
-           LOGGED-IN USER
+        LOGGED-IN USER
         ========================= */
         if ($user) {
+
+            // BLOCK other restaurant items
+            $existingRestaurant = Cart::where('user_uid', $user->uid)
+                ->where('restaurant_uid', '!=', $restaurantId)
+                ->exists();
+
+            if ($existingRestaurant) {
+                return $this->errorResponse(
+                    409,
+                    'Your cart contains items from another restaurant. Please clear the cart to continue.'
+                );
+            }
+
             if ($quantity <= 0) {
                 Cart::where('user_uid', $user->uid)
                     ->where('food_uid', $foodId)
@@ -71,7 +85,7 @@ class CartController extends Controller
         }
 
         /* =========================
-           GUEST USER
+        GUEST USER
         ========================= */
         $authCookie = app(AuthCookieService::class);
         $guestUid   = $request->cookie('guest_uid');
@@ -79,6 +93,18 @@ class CartController extends Controller
         if (!$guestUid) {
             $guestUid = Str::lower(Str::random(8));
             $authCookie->setGuestUid($guestUid);
+        }
+
+        // BLOCK other restaurant items
+        $existingRestaurant = Cart::where('guest_uid', $guestUid)
+            ->where('restaurant_uid', '!=', $restaurantId)
+            ->exists();
+
+        if ($existingRestaurant) {
+            return $this->errorResponse(
+                409,
+                'Your cart contains items from another restaurant. Please clear the cart to continue.'
+            );
         }
 
         if ($quantity <= 0) {
@@ -102,22 +128,19 @@ class CartController extends Controller
 
         $response = $this->successResponse(200, 'Added to cart (guest)');
 
-        $cookie = cookie(
+        return $response->withCookie(cookie(
             'guest_uid',
             $guestUid,
-            60 * 24 * 30, // 30 days
+            60 * 24 * 30,
             '/',
             null,
-            false, // secure
-            false, // httpOnly (can be true if you want)
+            false,
+            false,
             false,
             'Lax'
-        );
-
-        return $response->withCookie($cookie);
-
-        // return $this->successResponse(200, 'Added to cart (guest)');
+        ));
     }
+
 
     /* =====================================================
        DELETE CART ITEM BY CART UID
