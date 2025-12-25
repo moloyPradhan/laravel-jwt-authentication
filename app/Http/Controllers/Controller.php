@@ -121,10 +121,8 @@ class Controller extends BaseController
         ]);
     }
 
-    public function cartItemsPage($restaurantId)
+    public function cartItemsPage()
     {
-        return view('cart', [
-            'restaurantId' => $restaurantId,
-        ]);
+        return view('cart');
     }
 }

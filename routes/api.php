@@ -76,8 +76,8 @@ Route::middleware('auth.optional')->group(function () {
     );
 
     Route::get(
-        'restaurants/{restaurantId}/cart-items',
-        [CartController::class, 'getRestaurantCartItems']
+        'cart-items',
+        [CartController::class, 'getCartItems']
     );
 
     Route::delete(

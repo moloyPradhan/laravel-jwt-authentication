@@ -66,6 +66,19 @@
         }
 
         restaurants();
+
+        async function fetchCartItems() {
+            try {
+                const res = await httpRequest(`/api/cart-items`);
+                const items = res?.data?.items || [];
+                document.getElementById("cartCount").innerText = items.length;
+
+            } catch (error) {
+                console.log(error);
+            }
+        }
+
+        fetchCartItems();
     </script>
 
 @endsection

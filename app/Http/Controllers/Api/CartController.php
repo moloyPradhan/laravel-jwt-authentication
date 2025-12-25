@@ -187,47 +187,44 @@ class CartController extends Controller
     /* =====================================================
        GET CART ITEMS FOR A RESTAURANT
     ===================================================== */
-    public function getRestaurantCartItems(Request $request, $restaurantId)
+
+    public function getCartItems(Request $request)
     {
-        // Validate restaurant
-        $restaurant = Restaurant::where('uid', $restaurantId)->first();
-        if (!$restaurant) {
-            return $this->errorResponse(404, 'Restaurant not found');
-        }
-
         $user = $request->user();
+        $itemsQuery = Cart::with('food');
 
-        /* =========================
-           LOGGED-IN USER
-        ========================= */
         if ($user) {
-            $items = Cart::with('food')
-                ->where('user_uid', $user->uid)
-                ->where('restaurant_uid', $restaurantId)
-                ->get();
+            $itemsQuery->where('user_uid', $user->uid);
+        } else {
+            $guestUid = $request->cookie('guest_uid');
 
-            return $this->successResponse(200, 'Cart items fetched', [
-                'items' => $items,
-            ]);
+            if (!$guestUid) {
+                return $this->successResponse(200, 'Cart is empty', [
+                    'restaurant' => null,
+                    'items' => [],
+                ]);
+            }
+
+            $itemsQuery->where('guest_uid', $guestUid);
         }
 
-        /* =========================
-           GUEST USER
-        ========================= */
-        $guestUid = $request->cookie('guest_uid');
+        $items = $itemsQuery->get();
 
-        if (!$guestUid) {
+        if ($items->isEmpty()) {
             return $this->successResponse(200, 'Cart is empty', [
+                'restaurant' => null,
                 'items' => [],
             ]);
         }
 
-        $items = Cart::with('food')
-            ->where('guest_uid', $guestUid)
-            ->where('restaurant_uid', $restaurantId)
-            ->get();
+        $restaurantUid = $items->first()->restaurant_uid;
 
-        return $this->successResponse(200, 'Cart items fetched (guest)', [
+        $restaurant = Restaurant::with('addresses')
+            ->where('uid', $restaurantUid)
+            ->first();
+
+        return $this->successResponse(200, 'Cart items fetched', [
+            'restaurant' => $restaurant,
             'items' => $items,
         ]);
     }

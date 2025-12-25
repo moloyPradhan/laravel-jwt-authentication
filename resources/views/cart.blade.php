@@ -7,13 +7,7 @@
     <!-- Restaurant Info -->
     <div class="max-w-3xl mx-auto mb-4">
         <!-- Skeleton -->
-        <div id="restaurantSkeleton" class="bg-white rounded-xl shadow p-4 animate-pulse">
-            <div class="h-5 w-48 bg-gray-300 rounded mb-2"></div>
-            <div class="h-3 w-32 bg-gray-200 rounded"></div>
-        </div>
 
-        <!-- Info -->
-        <div id="restaurantInfo" class="bg-white rounded-xl shadow p-4 hidden"></div>
     </div>
 
     <!-- Cart List -->
@@ -32,7 +26,7 @@
         </div>
 
         <!-- Items -->
-        <div id="cartItemsContainer" class="space-y-4 hidden max-h-[55vh] overflow-y-auto pr-1"></div>
+        <div id="cartItemsContainer" class="space-y-4 hidden min-h-[50vh] max-h-[50vh] overflow-y-auto pr-1"></div>
     </div>
 
     <!-- Sticky Footer -->
@@ -42,7 +36,7 @@
             <div class="flex justify-between items-center">
                 <div>
                     <p class="text-sm text-gray-500">
-                        <span id="itemCount">0</span> items
+                        <span id="itemCount">0</span> Items
                     </p>
                     <p class="text-lg font-semibold">Total</p>
                 </div>
@@ -102,7 +96,7 @@
 
         async function loadCartItems() {
             try {
-                const res = await httpRequest(`/api/restaurants/{{ $restaurantId }}/cart-items`);
+                const res = await httpRequest(`/api/cart-items`);
                 const items = res?.data?.items || [];
 
                 let html = "";
@@ -115,7 +109,7 @@
 
                     html += cartItemRow(item);
                     totalAmount += price * qty;
-                    totalItems += qty;
+                    totalItems++;
                 });
 
                 document.getElementById("cartSkeleton").classList.add("hidden");
@@ -137,33 +131,6 @@
             }
         }
 
-        function renderRestaurantInfo(restaurant) {
-            document.getElementById("restaurantSkeleton").classList.add("hidden");
-            document.getElementById("restaurantInfo").classList.remove("hidden");
-
-            document.getElementById("restaurantInfo").innerHTML = `
-                <h2 class="text-xl font-semibold">${restaurant.name}</h2>
-                <p class="text-sm text-gray-500">
-                    ${restaurant.cuisine ?? "Restaurant"}
-                </p>
-            `;
-        }
-
-        async function loadRestaurantInfo() {
-            try {
-                // Replace with API later
-                const restaurant = {
-                    name: "Hell's Kitchen",
-                    cuisine: "Multi-Cuisine"
-                };
-
-                renderRestaurantInfo(restaurant);
-            } catch (e) {
-                console.error(e);
-            }
-        }
-
-        loadRestaurantInfo();
         loadCartItems();
     </script>
 
