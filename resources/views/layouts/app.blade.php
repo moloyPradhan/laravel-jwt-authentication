@@ -11,16 +11,18 @@
 </head>
 
 <body>
-    @include('layouts.header')
+
+    @php
+        $isCartPage = request()->routeIs('cartPage');
+    @endphp
+
+    @if (!$isCartPage)
+        @include('layouts.header')
+    @endif
+
 
     <div class="container min-h-[calc(100vh-6rem)] mx-auto px-4 py-8">
         @yield('content')
-
-        @php
-            $isCartPage = request()->routeIs('cartPage');
-
-        @endphp
-
         @if (!$isCartPage)
             <a id="floatingCart" href="{{ route('cartPage') }}"
                 class="fixed-btn bg-gray-800 text-white w-12 h-12 rounded-full shadow-lg flex items-center justify-center cursor-pointer hover:bg-gray-900 transition">
@@ -41,7 +43,9 @@
 
     </div>
 
-    @include('layouts.footer')
+    @if (!$isCartPage)
+        @include('layouts.footer')
+    @endif
 
     @stack('scripts')
 

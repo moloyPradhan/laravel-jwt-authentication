@@ -25,7 +25,7 @@ Route::middleware(['web', 'redirectIfAuthenticatedCookie'])
 
 // public routes
 Route::get('/', [Controller::class, 'homePage'])->name('homePage');
-Route::get('/restaurants', [Controller::class, 'homePage'])->name('homePage');
+Route::get('/restaurants', [Controller::class, 'homePage'])->name('restautantPage');
 Route::get('restaurants/{uid}', [Controller::class, 'restaurantFoodsPage'])->name('restaurantFoodsPage');
 Route::get('cart', [Controller::class, 'cartItemsPage'])->name('cartPage');
 

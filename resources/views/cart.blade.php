@@ -4,14 +4,40 @@
 
 @section('content')
 
-    <!-- Restaurant Info -->
-    <div class="max-w-3xl mx-auto mb-4">
-        <!-- Skeleton -->
+    <!-- Breadcrumb -->
+    <nav id="restaurantBreadcrumb" class="max-w-3xl mx-auto mb-3 hidden">
+        <ol class="flex items-center space-x-2 text-sm text-gray-600">
+            <li>
+                <a href="{{ route('homePage') }}" class="hover:text-gray-800 font-medium">Home</a>
+            </li>
+            <li>›</li>
+            <li>
+                <a href="{{ route('restautantPage') }}" class="hover:text-gray-800 font-medium">
+                    Restaurant
+                </a>
+            </li>
+            <li>›</li>
+            <li>
+                <a id="restaurantBackLink" href="#" class="hover:text-gray-800 font-medium">
+                    Restaurant
+                </a>
+            </li>
+            <li>›</li>
+            <li class="text-gray-800">Cart</li>
+        </ol>
+    </nav>
 
+    <!-- Restaurant Info -->
+    <div id="restaurantInfo" class="max-w-3xl mx-auto mb-4 hidden">
+        <div class="bg-white rounded-xl shadow p-4 space-y-1">
+            <h2 id="restaurantName" class="text-lg font-semibold text-gray-800"></h2>
+            <p id="restaurantAddress" class="text-sm text-gray-600"></p>
+        </div>
     </div>
 
     <!-- Cart List -->
     <div class="max-w-3xl mx-auto">
+
         <!-- Skeleton -->
         <div id="cartSkeleton" class="space-y-4">
             @for ($i = 0; $i < 3; $i++)
@@ -26,7 +52,8 @@
         </div>
 
         <!-- Items -->
-        <div id="cartItemsContainer" class="space-y-4 hidden min-h-[50vh] max-h-[50vh] overflow-y-auto pr-1"></div>
+        <div id="cartItemsContainer" class="space-y-4 hidden min-h-[40vh] max-h-[40vh] overflow-y-auto pr-1">
+        </div>
     </div>
 
     <!-- Sticky Footer -->
@@ -45,7 +72,7 @@
 
             @if ($isLoggedIn)
                 <button id="checkoutBtn"
-                    class="w-full bg-green-600 hover:bg-green-700 text-white py-3 rounded-lg font-semibold transition disabled:opacity-50 disabled:cursor-not-allowed"
+                    class="w-full bg-green-600 hover:bg-green-700 text-white py-3 rounded-lg font-semibold transition disabled:opacity-50"
                     disabled>
                     Proceed to Checkout
                 </button>
@@ -59,11 +86,11 @@
         </div>
     </div>
 
+    <!-- JS -->
     <script type="module">
         import {
             httpRequest
         } from "/js/httpClient.js";
-
 
         function cartItemRow(item) {
             const name = item.food?.name ?? "Food Item";
@@ -80,12 +107,10 @@
 
                     <div class="flex items-center gap-4">
                         <p class="font-bold">₹${total}</p>
-
-                        <!-- Delete icon -->
-                        <button 
-                            onclick="removeCartItem('${item.food_uid}')"
-                            class="text-red-500 hover:text-red-700 transition"
-                            title="Remove item">
+                        <button
+                            data-cart-uid="${item.uid}"
+                            class="remove-cart-item text-red-500 hover:text-red-700"
+                            title="Remove">
                             🗑️
                         </button>
                     </div>
@@ -93,15 +118,32 @@
             `;
         }
 
-
-        async function loadCartItems() {
+        async function fetchCartItems() {
             try {
                 const res = await httpRequest(`/api/cart-items`);
+                const restaurant = res?.data?.restaurant || null;
                 const items = res?.data?.items || [];
 
                 let html = "";
                 let totalAmount = 0;
                 let totalItems = 0;
+
+                if (restaurant) {
+                    const address = restaurant.addresses?.[0];
+
+                    document.getElementById("restaurantName").innerText = restaurant.name;
+                    document.getElementById("restaurantBackLink").innerText = restaurant.name;
+
+                    document.getElementById("restaurantAddress").innerText = address ?
+                        `${address.address_line_1}, ${address.city}, ${address.postal_code}` :
+                        restaurant.description || "";
+
+                    document.getElementById("restaurantBackLink").href =
+                        `/restaurants/${restaurant.uid}`;
+
+                    document.getElementById("restaurantInfo").classList.remove("hidden");
+                    document.getElementById("restaurantBreadcrumb").classList.remove("hidden");
+                }
 
                 items.forEach(item => {
                     const price = Number(item.food?.discount_price ?? item.food?.price ?? 0);
@@ -131,7 +173,30 @@
             }
         }
 
-        loadCartItems();
+        fetchCartItems();
+
+        document.addEventListener("click", async (e) => {
+            const btn = e.target.closest(".remove-cart-item");
+            if (!btn) return;
+
+            const cartItemId = btn.dataset.cartUid;
+            await removeCartItem(cartItemId);
+        });
+
+
+        async function removeCartItem(cartItemId) {
+            try {
+                const res = await httpRequest(`/api/cart-items/${cartItemId}`, {
+                    method: "DELETE",
+                });
+
+                fetchCartItems();
+
+            } catch (error) {
+                console.log(error);
+            }
+
+        }
     </script>
 
 @endsection
