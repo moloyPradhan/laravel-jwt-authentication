@@ -67,7 +67,7 @@
             border-bottom: none;
         }
 
-   
+
 
         #menuFloatBtn {
             bottom: 30px !important;
@@ -140,6 +140,17 @@
             padding: 4px 8px;
             border-radius: 8px;
             font-weight: 600;
+        }
+
+        .btn-disabled {
+            background: #e5e7eb;
+            color: #6b7280;
+            cursor: not-allowed;
+            padding: 6px 10px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            border: none;
         }
 
         /* small responsive adjustments */
@@ -255,11 +266,19 @@
 
                 <div class="meta">
                     <div>
-                        <div class="title">${food.name}</div>
+                        <div class="title">
+                            ${food.name} 
+
+                            <span>[${food.is_veg? 'Veg': 'Non-Veg'}]</span>
+                        </div>
+                    
+
                         <div class="price">₹${"" /* placeholder for spacing */}
                             ${food.discount_price ? 
-                                    `${food.discount_price}
-                                                                <span class="line-through text-xs text-gray-400">${food.price}</span>` : `<span>${food.price}</span>`
+                                `${food.discount_price}
+                                                            <span class="line-through text-xs text-gray-400">${food.price}</span>`
+                                    :
+                                    `<span>${food.price}</span>`
                                 }
                         </div>
 
@@ -270,10 +289,14 @@
                     <div class="actions">
                         <div class="small-desc text-sm text-gray-500">${food.description || ''}</div>
 
-                        <div class="action-controls" data-food-id="${food.uid}">
-                            <button class="add-btn-small" data-food-id="${food.uid}">Add To Cart</button>
-                        </div>
+                        ${food.is_available?`
+                            <div class="action-controls" data-food-id="${food.uid}">
+                                <button class="add-btn-small" data-food-id="${food.uid}">Add To Cart</button>
+                            </div>`:
+                        `<button class="btn-disabled" disabled>Not Available</button>`
+                        }
                     </div>
+
                 </div>
             </div>
         `;

@@ -90,16 +90,25 @@
 
                 const res = await httpRequest(url, options);
                 if (res.httpStatus >= 200 && res.httpStatus < 300) {
+
                     showToast('success', res.message);
                     setTimeout(() => {
-                        location.href = @json(route('homePage'));
+
+                        const params = new URLSearchParams(window.location.search);
+                        const source = params.get('source');
+
+                        if (source === 'cart') {
+                            location.href = @json(url('/')) + '/cart';
+                        } else {
+                            location.href = @json(route('homePage'));
+                        }
+
                     }, 350);
                 }
 
             } catch (err) {
                 console.error("Login error:", err);
-            }
-            finally {
+            } finally {
                 loginBtn.textContent = "Login";
                 loginBtn.disabled = false;
             }

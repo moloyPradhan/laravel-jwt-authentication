@@ -77,7 +77,7 @@
                     Proceed to Checkout
                 </button>
             @else
-                <button onclick="window.location.href='{{ route('loginPage') }}'"
+                <button onclick="window.location.href='{{ route('loginPage') }}?source=cart'"
                     class="w-full bg-gray-900 hover:bg-gray-800 text-white py-3 rounded-lg font-semibold transition">
                     Proceed to Login
                 </button>
@@ -101,8 +101,10 @@
             return `
                 <div class="flex items-center justify-between bg-white rounded-xl shadow-sm p-4">
                     <div>
-                        <p class="font-semibold text-gray-800">${name}</p>
+                        <p class="font-semibold text-gray-800">${name} [${item?.food?.is_veg? "Veg":"Non-Veg"}]</p>
                         <p class="text-sm text-gray-500">₹${price} × ${qty}</p>
+                        <p class="text-sm text-gray-500">Prepare Time : ${item?.food?.preparation_time} Min</p>
+                        <p class="text-sm text-gray-500">${item?.food?.is_available?"": "Not Available"}</p>
                     </div>
 
                     <div class="flex items-center gap-4">
@@ -118,6 +120,7 @@
             `;
         }
 
+        let totalAmount = 0;
         async function fetchCartItems() {
             try {
                 const res = await httpRequest(`/api/cart-items`);
@@ -125,8 +128,9 @@
                 const items = res?.data?.items || [];
 
                 let html = "";
-                let totalAmount = 0;
+
                 let totalItems = 0;
+                totalAmount = 0;
 
                 if (restaurant) {
                     const address = restaurant.addresses?.[0];
@@ -197,6 +201,29 @@
             }
 
         }
+
+        async function checkoutOrder() {
+            var options = {
+                "key": "rzp_test_LcrnvN0lkNSWgv",
+                "amount": totalAmount,
+                "currency": "INR",
+                "name": "FulBite",
+                "description": "Checkout Order",
+                "order_id": "{{ $order_id }}",
+                "handler": function(response) {
+                    console.log(response);
+
+                }
+            };
+
+            var rzp1 = new Razorpay(options);
+            rzp1.open();
+
+        }
+
+        document.getElementById('checkoutBtn').addEventListener('click', () => {
+            checkoutOrder();
+        })
     </script>
 
 @endsection
