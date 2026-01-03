@@ -1,0 +1,14 @@
+services:
+  - type: web
+    name: laravel-app
+    env: php
+    plan: free
+    buildCommand: |
+      composer install --no-dev --optimize-autoloader
+      php artisan key:generate
+      php artisan migrate --force
+      php artisan config:clear
+      php artisan config:cache
+      php artisan route:cache
+      php artisan view:cache
+    startCommand: php -S 0.0.0.0:10000 -t public
