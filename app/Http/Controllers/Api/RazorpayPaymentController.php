@@ -9,6 +9,7 @@ use App\Traits\ApiResponse;
 
 use App\Models\Cart;
 use App\Models\PaymentGateway;
+use Illuminate\Support\Facades\Validator;
 
 class RazorpayPaymentController extends Controller
 {
@@ -67,17 +68,13 @@ class RazorpayPaymentController extends Controller
             return $this->errorResponse(400, 'Cart is empty');
         }
 
-
         $totalAmount = 0;
         foreach ($items as $item) {
             $totalAmount += $item->food->discount_price ?? $item->food->price;
         }
 
-
-
         // Razorpay amount in paise
         $amountInPaise = $totalAmount * 100;
-
 
         $orderData = [
             'receipt'         => 'rcpt_' . uniqid(),
@@ -93,6 +90,9 @@ class RazorpayPaymentController extends Controller
             'create_order' => [
                 'user_uid' => $user_uid,
                 'amount'   => $totalAmount,
+            ],
+            'clear_cart'   => [
+                'user_uid' => $user_uid
             ]
         ];
 
@@ -111,5 +111,103 @@ class RazorpayPaymentController extends Controller
                 'currency' => 'INR',
             ]
         ]);
+    }
+
+    public function verifyPayment(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'order_id'    => 'required|string',
+            'payment_id'  => 'required|string',
+            'signature'   => 'required|string',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'message' => 'Validation failed',
+                'errors'  => $validator->errors()
+            ], 422);
+        }
+
+        $validated = $validator->validated();
+
+        $orderId   = $validated['order_id'];
+        $paymentId = $validated['payment_id'];
+        $signature = $validated['signature'];
+
+        $payment = PaymentGateway::where('order_id', $orderId)->first();
+
+        if (!$payment) {
+            return $this->errorResponse(404, 'Payment record not found');
+        }
+
+        try {
+            $api = new Api(env('RAZORPAY_KEY'), env('RAZORPAY_SECRET'));
+
+            $api->utility->verifyPaymentSignature([
+                'razorpay_order_id'   => $orderId,
+                'razorpay_payment_id' => $paymentId,
+                'razorpay_signature'  => $signature,
+            ]);
+        } catch (\Exception $e) {
+            $payment->update([
+                'payment_id' => $paymentId,
+                'status'     => 'failed',
+                'response'   => json_encode([
+                    'error' => $e->getMessage()
+                ]),
+            ]);
+
+            return $this->errorResponse(400, 'Payment verification failed');
+        }
+
+        $payment->update([
+            'payment_id' => $paymentId,
+            'status'     => 'success',
+            'response'   => json_encode($request->all()),
+        ]);
+
+        // success action
+
+        $successAction = json_decode($payment->success_action, true);
+
+        if (!is_array($successAction)) {
+            return $this->errorResponse(500, 'Invalid success action format');
+        }
+
+        foreach ($successAction as $action => $data) {
+
+            switch ($action) {
+
+                case 'create_order':
+                    $this->createOrderAfterPayment($data);
+                    break;
+
+                case 'clear_cart':
+                    $this->clearUserCart($data);
+                    break;
+
+                default:
+                    break;
+            }
+        }
+
+        return $this->successResponse(200, 'Payment verified successfully', ['successAction' => $successAction]);
+    }
+
+    protected function createOrderAfterPayment(array $data)
+    {
+
+        return true;
+
+        // Order::create([
+        //     'user_uid' => $data['user_uid'],
+        //     'amount'   => $data['amount'],
+        //     'status'   => 'paid',
+        // ]);
+    }
+
+    protected function clearUserCart(array $data)
+    {
+        Cart::where('user_uid', $data['user_uid'])->delete();
     }
 }

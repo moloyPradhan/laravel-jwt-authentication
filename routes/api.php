@@ -90,6 +90,7 @@ Route::middleware('auth.optional')->group(function () {
 
 Route::middleware('auth:api')->group(function () {
     Route::post('orders/create', [RazorpayPaymentController::class, 'createOrder']);
+    Route::post('orders/verify-payment', [RazorpayPaymentController::class, 'verifyPayment']);
 
     Route::get('/messages/{roomId}', [MessageController::class, 'getMessages']);
     Route::post('/send-message', [MessageController::class, 'sendMessage']);

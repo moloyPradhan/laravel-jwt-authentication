@@ -202,6 +202,29 @@
 
         }
 
+        //////////////////////////////////////////////////////
+
+        async function verifyPayment(data) {
+            const order_id = data.razorpay_order_id;
+            const payment_id = data.razorpay_payment_id;
+            const signature = data.razorpay_signature;
+
+            try {
+                const res = await httpRequest(`/api/orders/verify-payment`, {
+                    method: "POST",
+                    body: {
+                        order_id,
+                        payment_id,
+                        signature,
+                    }
+                });
+
+                location.href = @json(route('homePage'));
+
+            } catch (error) {
+                console.log(error);
+            }
+        }
 
         async function checkoutOrder() {
 
@@ -230,7 +253,7 @@
 
                     handler: function(response) {
                         console.log("Payment Success:", response);
-                        // TODO: call payment verification API
+                        verifyPayment(response)
                     },
 
                     prefill: {
