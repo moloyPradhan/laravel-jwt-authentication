@@ -202,28 +202,65 @@
 
         }
 
+
         async function checkoutOrder() {
-            var options = {
-                "key": "rzp_test_LcrnvN0lkNSWgv",
-                "amount": totalAmount,
-                "currency": "INR",
-                "name": "FulBite",
-                "description": "Checkout Order",
-                "order_id": "{{ $order_id }}",
-                "handler": function(response) {
-                    console.log(response);
 
-                }
-            };
+            const checkoutBtn = document.getElementById('checkoutBtn');
+            checkoutBtn.setAttribute('disabled', true);
 
-            var rzp1 = new Razorpay(options);
-            rzp1.open();
+            try {
+                const res = await httpRequest(`api/orders/create`, {
+                    method: "POST",
+                });
 
+                const {
+                    key,
+                    amount,
+                    currency,
+                    order_id
+                } = res?.data?.payload;
+
+                const options = {
+                    key: key,
+                    amount: amount,
+                    currency: currency,
+                    name: "FulBite",
+                    description: "Checkout Order",
+                    order_id: order_id,
+
+                    handler: function(response) {
+                        console.log("Payment Success:", response);
+                        // TODO: call payment verification API
+                    },
+
+                    prefill: {
+                        name: "Customer",
+                        email: "customer@email.com",
+                        contact: "9999999999"
+                    },
+
+                    theme: {
+                        color: "#0f172a"
+                    }
+                };
+
+                const rzp1 = new Razorpay(options);
+
+                rzp1.on('payment.failed', function(response) {
+                    console.log("Payment Failed:", response.error);
+                });
+
+                rzp1.open();
+
+            } catch (error) {
+                console.error(error);
+            } finally {
+                checkoutBtn.removeAttribute('disabled');
+            }
         }
 
-        document.getElementById('checkoutBtn').addEventListener('click', () => {
-            checkoutOrder();
-        })
+        document.getElementById('checkoutBtn')
+            .addEventListener('click', checkoutOrder);
     </script>
 
 @endsection

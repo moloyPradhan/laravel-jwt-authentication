@@ -9,8 +9,6 @@ use Illuminate\Routing\Controller as BaseController;
 use Illuminate\Http\Request;
 use App\Helpers\AuthHelper;
 
-use Razorpay\Api\Api;
-
 class Controller extends BaseController
 {
     use AuthorizesRequests, ValidatesRequests;
@@ -124,20 +122,6 @@ class Controller extends BaseController
 
     public function cartItemsPage()
     {
-        $api = new Api(env('RAZORPAY_KEY'), env('RAZORPAY_SECRET'));
-
-        $orderData = [
-            'receipt'         => 'order_rcptid_' . rand(),
-            'currency'        => 'INR',
-            'amount'          => 50000,
-            'payment_capture' => 1
-        ];
-
-        $razorpayOrder = $api->order->create($orderData);
-
-        return view('cart', [
-            'key'      => env('RAZORPAY_KEY'),
-            'order_id' => $razorpayOrder['id'],
-        ]);
+        return view('cart');
     }
 }

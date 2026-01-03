@@ -223,9 +223,20 @@ class CartController extends Controller
             ->where('uid', $restaurantUid)
             ->first();
 
+        $totalAmount = 0;
+        foreach ($items as $item) {
+            if (!empty($item['food']['discount_price'])) {
+                $totalAmount = $totalAmount + floatval($item['food']['discount_price']);
+            } else {
+                $totalAmount = $totalAmount + floatval($item['food']['price']);
+            }
+        }
+
         return $this->successResponse(200, 'Cart items fetched', [
             'restaurant' => $restaurant,
             'items' => $items,
+            'totalAmount' => $totalAmount
         ]);
     }
+
 }

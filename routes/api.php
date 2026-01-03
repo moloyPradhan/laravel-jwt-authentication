@@ -8,6 +8,7 @@ use App\Http\Controllers\Api\FoodController;
 use App\Http\Controllers\Api\MessageController;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\CartController;
+use App\Http\Controllers\Api\RazorpayPaymentController;
 
 Route::prefix('auth')->group(function () {
     Route::post('verify', [AuthController::class, 'verifyUser']);
@@ -88,6 +89,8 @@ Route::middleware('auth.optional')->group(function () {
 
 
 Route::middleware('auth:api')->group(function () {
+    Route::post('orders/create', [RazorpayPaymentController::class, 'createOrder']);
+
     Route::get('/messages/{roomId}', [MessageController::class, 'getMessages']);
     Route::post('/send-message', [MessageController::class, 'sendMessage']);
 });
