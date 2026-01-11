@@ -25,4 +25,13 @@ class OrderItems extends Model
     protected $casts = [
         'created_at' => 'datetime',
     ];
+
+    public function food()
+    {
+        return $this->belongsTo(
+            RestaurantFood::class,
+            'food_uid', // FK in order_items table
+            'uid'       // PK in restaurant_foods table
+        );
+    }
 }

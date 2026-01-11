@@ -9,8 +9,8 @@
                 class="block py-2 px-3 rounded hover:bg-blue-500 hover:text-white {{ request()->routeIs('loginPage*') ? 'bg-blue-600 text-white' : 'text-gray-700' }}">
                 Addresses
             </a>
-            <a href="{{ route('profilePage') }}"
-                class="block py-2 px-3 rounded hover:bg-blue-500 hover:text-white {{ request()->routeIs('loginPage*') ? 'bg-blue-600 text-white' : 'text-gray-700' }}">
+            <a href="{{ route('orderPage') }}"
+                class="block py-2 px-3 rounded hover:bg-blue-500 hover:text-white {{ request()->routeIs('orderPage') ? 'bg-blue-600 text-white' : 'text-gray-700' }}">
                 Orders
             </a>
             <a href="{{ route('userChatList') }}"

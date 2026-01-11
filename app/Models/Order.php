@@ -23,4 +23,9 @@ class Order extends Model
     protected $casts = [
         'created_at' => 'datetime',
     ];
+
+    public function order_items()
+    {
+        return $this->hasMany(OrderItems::class, 'order_uid', 'uid');
+    }
 }

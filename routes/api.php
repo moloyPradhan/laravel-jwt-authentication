@@ -9,6 +9,7 @@ use App\Http\Controllers\Api\MessageController;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\CartController;
 use App\Http\Controllers\Api\RazorpayPaymentController;
+use App\Http\Controllers\Api\OrderController;
 
 Route::prefix('auth')->group(function () {
     Route::post('verify', [AuthController::class, 'verifyUser']);
@@ -89,6 +90,7 @@ Route::middleware('auth.optional')->group(function () {
 
 
 Route::middleware('auth:api')->group(function () {
+    Route::get('orders', [OrderController::class, 'getOrders']);
     Route::post('orders/create', [RazorpayPaymentController::class, 'createOrder']);
     Route::post('orders/verify-payment', [RazorpayPaymentController::class, 'verifyPayment']);
 

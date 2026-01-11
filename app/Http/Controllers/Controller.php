@@ -28,6 +28,11 @@ class Controller extends BaseController
         return view('profile');
     }
 
+    public function orderPage()
+    {
+        return view('order');
+    }
+
     public function listChatUser()
     {
         return view('chatList');
