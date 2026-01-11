@@ -268,11 +268,8 @@
                     <div>
                         <div class="title">
                             ${food.name} 
-
-                            <span>[${food.is_veg? 'Veg': 'Non-Veg'}]</span>
                         </div>
                     
-
                         <div class="price">₹${"" /* placeholder for spacing */}
                             ${food.discount_price ? 
                                 `${food.discount_price}
@@ -287,7 +284,9 @@
                     </div>
 
                     <div class="actions">
-                        <div class="small-desc text-sm text-gray-500">${food.description || ''}</div>
+                        <div class="small-desc text-sm text-gray-500">
+                            ${food.is_veg? 'Veg': 'Non-Veg'}
+                        </div>
 
                         ${food.is_available?`
                             <div class="action-controls" data-food-id="${food.uid}">
