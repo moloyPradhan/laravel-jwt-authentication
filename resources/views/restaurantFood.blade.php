@@ -207,6 +207,84 @@
             font-size: 14px;
             color: #000;
         }
+
+        /* ////////////// */
+
+        /* Filter chips */
+        .filter-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            border-radius: 999px;
+            font-size: 13px;
+            font-weight: 500;
+            background: #f3f4f6;
+            color: #111827;
+            cursor: pointer;
+            border: 1px solid transparent;
+        }
+
+        .filter-chip.active {
+            background: #111827;
+            color: #fff;
+        }
+
+        .filter-chip.active .food-type {
+            border-color: #fff;
+        }
+
+        .filter-chip.active .food-type::after {
+            background: #fff;
+        }
+
+        /* Sort select */
+        .sort-select {
+            padding: 6px 12px;
+            border-radius: 8px;
+            border: 1px solid #e5e7eb;
+            font-size: 13px;
+            background: #fff;
+        }
+
+        /* ///////////////// */
+
+        .food-type {
+            width: 14px;
+            height: 14px;
+            border: 2px solid;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 3px;
+        }
+
+        .food-type::after {
+            content: "";
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+        }
+
+        /* Veg */
+        .food-type.veg {
+            border-color: #16a34a;
+            /* green */
+        }
+
+        .food-type.veg::after {
+            background: #16a34a;
+        }
+
+        /* Non-Veg */
+        .food-type.non-veg {
+            border-color: #dc2626;
+            /* red */
+        }
+
+        .food-type.non-veg::after {
+            background: #dc2626;
+        }
     </style>
 
     <!-- Floating Cart Icon -->
@@ -234,6 +312,8 @@
             <div id="foodDetailContent"></div>
         </div>
     </div>
+
+    <!-- Filter & Sort Bar -->
 
 
     <!-- Breadcrumb -->
@@ -274,6 +354,28 @@
             </li>
         </ol>
     </nav>
+
+    <div class="flex flex-wrap items-center gap-3 mb-6">
+
+        <!-- Veg / Non-Veg Filter -->
+        <button class="filter-chip active" data-filter="all">All</button>
+        <button class="filter-chip" data-filter="veg">
+            <span class="food-type veg"></span> Veg
+        </button>
+        <button class="filter-chip" data-filter="non-veg">
+            <span class="food-type non-veg"></span> Non-Veg
+        </button>
+
+        <!-- Sort Dropdown -->
+        <select id="sortSelect" class="sort-select ml-auto">
+            <option value="">Sort by</option>
+            <option value="price_low">Price: Low → High</option>
+            <option value="price_high">Price: High → Low</option>
+            <option value="time_low">Time: Fastest</option>
+        </select>
+    </div>
+
+
 
     <!-- Food Section -->
     <div id="menuFoodContainer" class="space-y-6">
@@ -327,12 +429,12 @@
                             <div class="price">₹${"" /* placeholder for spacing */}
                                 ${food.discount_price ? 
                                     `${food.discount_price}
-                                                                                <span class="line-through text-xs text-gray-400">${food.price}</span>`
+                                                                                                                    <span class="line-through text-xs text-gray-400">${food.price}</span>`
                                         :
                                         `<span>${food.price}</span>`
                                     }
                             </div>
-                            ${food.preparation_time?`<span class="text-xs">${food.is_veg? 'Veg': 'Non-Veg'} • ${food.preparation_time} Min</span>`: ``}
+                            ${food.preparation_time?`<span class="text-xs">${food.is_veg? '<span class="food-type veg"></span>': '<span class="food-type non-veg"></span>'} • ${food.preparation_time} Min</span>`: ``}
                         </div>
                     </div>
                 </div>
@@ -340,9 +442,9 @@
                     <div class="small-desc text-sm text-gray-500"></div>
 
                     ${food.is_available?`
-                                                                    <div class="action-controls" data-food-id="${food.uid}">
-                                                                        <button class="add-btn-small" data-food-id="${food.uid}">Add To Cart</button>
-                                                                    </div>`:
+                                                                                                        <div class="action-controls" data-food-id="${food.uid}">
+                                                                                                            <button class="add-btn-small" data-food-id="${food.uid}">Add To Cart</button>
+                                                                                                        </div>`:
                     `<button class="btn-disabled" disabled>Not Available</button>`
                     }
                 </div>
@@ -452,6 +554,12 @@
             }
         });
 
+        let allFoods = [];
+        let allMenus = [];
+        let menuFoodMap = {};
+        let currentFilter = "all";
+        let currentSort = "";
+
         // Load menus + foods together
         async function loadMenuFoods() {
             try {
@@ -463,8 +571,12 @@
                 const foods = foodsRes?.data?.foods || [];
                 const menus = menusRes?.data?.menus || [];
 
+                allFoods = foods;
+                allMenus = menus;
+
                 // Build mapping menuUid → foods[]
-                const menuFoodMap = {};
+                // const menuFoodMap = {};
+
                 menus.forEach(menu => {
                     menuFoodMap[menu.uid] = {
                         menu,
@@ -532,7 +644,7 @@
                     html += `
                         <div data-scroll="menu_${menu.uid}" class="hover:bg-gray-800/20">
                             <span>${menu.name}</span>
-                            <span class="text-sm text-gray-300">${count}</span>
+                            <span class="text-sm text-gray-900">${count}</span>
                         </div>
                     `;
                 }
@@ -595,15 +707,14 @@
                 <div class="food-detail-title mb-1">${food.name}</div>
 
                 <div class="flex justify-between items-center mb-2">
-
                     <div class="food-detail-price mb-2">
                         ₹${food.discount_price ?? food.price}
                         ${food.discount_price ? `<span class="line-through text-sm text-gray-400">${food.price}</span>` : ``}
                     </div>
 
-                     ${food.is_available ? `
-                                                            <div class="action-controls" data-food-id="${food.uid}">
-                                                                ${cart[food.uid] ? `
+                    ${food.is_available ? `
+                            <div class="action-controls" data-food-id="${food.uid}">
+                                ${cart[food.uid] ? `
                                     <div class="qty-box">
                                         <button class="qty-minus" data-food-id="${food.uid}">-</button>
                                         <span class="qty-count">${cart[food.uid]}</span>
@@ -614,13 +725,13 @@
                                         Add To Cart
                                     </button>
                                 `}
-                                                            </div>
-                                                    ` : `<button class="btn-disabled w-full">Not Available</button>`}
+                                </div>
+                        ` : `<button class="btn-disabled w-full">Not Available</button>`}
 
                 </div>
 
                 <div class="text-sm mb-2">
-                    ${food.is_veg ? '🟢 Veg' : '🔴 Non-Veg'}
+                    ${food.is_veg ? `<span class="food-type veg"></span>` : `<span class="food-type non-veg"></span>`}
                     ${food.preparation_time ? ` • ${food.preparation_time} min` : ``}
                 </div>
 
@@ -643,6 +754,78 @@
                 document.getElementById("foodDetailPopup").style.display = "none";
                 document.body.classList.remove("no-scroll");
             }
+        };
+
+        //////////////////////////////////////////////////////////////////////////////
+
+        function renderFoods() {
+            let finalHtml = "";
+
+            Object.values(menuFoodMap).forEach(group => {
+                let foods = [...group.foods];
+
+                // -------- FILTER --------
+                if (currentFilter === "veg") {
+                    foods = foods.filter(f => f.is_veg);
+                }
+                if (currentFilter === "non-veg") {
+                    foods = foods.filter(f => !f.is_veg);
+                }
+
+                if (!foods.length) return;
+
+                // -------- SORT --------
+                if (currentSort === "price_low") {
+                    foods.sort((a, b) =>
+                        (a.discount_price ?? a.price) - (b.discount_price ?? b.price)
+                    );
+                }
+
+                if (currentSort === "price_high") {
+                    foods.sort((a, b) =>
+                        (b.discount_price ?? b.price) - (a.discount_price ?? a.price)
+                    );
+                }
+
+                if (currentSort === "time_low") {
+                    foods.sort((a, b) =>
+                        (a.preparation_time ?? 999) - (b.preparation_time ?? 999)
+                    );
+                }
+
+                // -------- RENDER --------
+                finalHtml += `
+                    <div id="menu_${group.menu.uid}">
+                        <h2 class="text-xl font-semibold text-gray-800 mb-3">
+                            ${group.menu.name}
+                        </h2>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+                            ${foods.map(f => generateFoodCard(f)).join("")}
+                        </div>
+                    </div>
+                `;
+            });
+
+            document.getElementById("menuFoodContainer").innerHTML = finalHtml;
+        }
+
+
+        // Filter click
+        document.querySelectorAll(".filter-chip").forEach(btn => {
+            btn.onclick = () => {
+                document.querySelectorAll(".filter-chip").forEach(b => b.classList.remove("active"));
+                btn.classList.add("active");
+
+                currentFilter = btn.dataset.filter;
+                renderFoods();
+            };
+        });
+
+        // Sort change
+        document.getElementById("sortSelect").onchange = (e) => {
+            currentSort = e.target.value;
+            renderFoods();
         };
     </script>
 
