@@ -5,6 +5,25 @@
 @section('content')
 
     <style>
+        /* Hide scrollbar but keep scrolling */
+        html,
+        body {
+            scrollbar-width: none;
+            /* Firefox */
+            -ms-overflow-style: none;
+            /* IE / Edge */
+        }
+
+        html::-webkit-scrollbar,
+        body::-webkit-scrollbar {
+            display: none;
+            /* Chrome, Safari */
+        }
+
+        body.no-scroll {
+            overflow: hidden;
+        }
+
         /* Floating Round Button */
         .sw-menu-btn {
             position: fixed;
@@ -42,11 +61,11 @@
 
         /* Menu Box */
         .sw-menu-box {
-            width: 360px;
-            max-height: 80vh;
+            max-height: 95vh;
+            width: 500px;
             overflow: auto;
-            background: #0B0910;
-            color: white;
+            background: #fff;
+            color: #000;
             border-radius: 16px;
             padding: 18px;
             box-shadow: 0px 8px 40px rgba(0, 0, 0, 0.6);
@@ -83,12 +102,12 @@
             display: flex;
             gap: 12px;
             align-items: center;
-            padding: 8px;
+            padding: 10px;
         }
 
         .food-card img {
-            width: 96px;
-            height: 72px;
+            height: 100px;
+            width: 100px;
             object-fit: cover;
             border-radius: 8px;
             flex-shrink: 0;
@@ -123,21 +142,22 @@
         }
 
         .add-btn-small {
-            padding: 6px 10px;
+            padding: 8px 8px;
             border-radius: 8px;
             background: #111827;
             color: #fff;
             font-size: 13px;
             border: none;
             cursor: pointer;
+            width: max-content
         }
 
         .qty-box {
             display: inline-flex;
             align-items: center;
-            gap: 18px;
+            gap: 22px;
             background: #f3f4f6;
-            padding: 4px 8px;
+            padding: 8px 8px;
             border-radius: 8px;
             font-weight: 600;
         }
@@ -165,6 +185,28 @@
                 height: 64px
             }
         }
+
+        .food-detail-img {
+            width: 100%;
+            height: 280px;
+            object-fit: cover;
+            border-radius: 12px;
+        }
+
+        .food-detail-title {
+            font-size: 18px;
+            font-weight: 700;
+        }
+
+        .food-detail-price {
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .food-detail-desc {
+            font-size: 14px;
+            color: #000;
+        }
     </style>
 
     <!-- Floating Cart Icon -->
@@ -180,6 +222,19 @@
             <div id="swMenuList" class="sw-menu-list"></div>
         </div>
     </div>
+
+    <!-- Food Details Popup -->
+    <div id="foodDetailPopup" class="sw-menu-popup">
+        <div class="sw-menu-box max-w-md w-full">
+            <div class="flex justify-between items-center mb-3">
+                <span class="text-lg font-semibold">Food Details</span>
+                <button id="closeFoodPopup" class="text-black text-xl">✕</button>
+            </div>
+
+            <div id="foodDetailContent"></div>
+        </div>
+    </div>
+
 
     <!-- Breadcrumb -->
     <nav class="flex mb-6" aria-label="Breadcrumb">
@@ -261,41 +316,35 @@
             const imageUrl = mainImage?.image_url || "/images/placeholder.jpg";
 
             return `
-            <div class="food-card" id="food_${food.id}">
-                <img src="${imageUrl}" alt="${(food.name||'Food').replace(/"/g,'')}">
-
-                <div class="meta">
-                    <div>
+            <div class="food-card"id="food_${food.id}">
+                <div class="flex gap-2 justify-content-between" onclick='openFoodPopup(${JSON.stringify(food).replace(/'/g,"&apos;")})'>
+                    <img src="${imageUrl}" class="cursor-pointer"  alt="${(food.name||'Food').replace(/"/g,'')}">
+                        <div class="meta">
                         <div class="title">
                             ${food.name} 
                         </div>
-                    
-                        <div class="price">₹${"" /* placeholder for spacing */}
-                            ${food.discount_price ? 
-                                `${food.discount_price}
-                                                            <span class="line-through text-xs text-gray-400">${food.price}</span>`
-                                    :
-                                    `<span>${food.price}</span>`
-                                }
+                        <div>
+                            <div class="price">₹${"" /* placeholder for spacing */}
+                                ${food.discount_price ? 
+                                    `${food.discount_price}
+                                                                                <span class="line-through text-xs text-gray-400">${food.price}</span>`
+                                        :
+                                        `<span>${food.price}</span>`
+                                    }
+                            </div>
+                            ${food.preparation_time?`<span class="text-xs">${food.is_veg? 'Veg': 'Non-Veg'} • ${food.preparation_time} Min</span>`: ``}
                         </div>
-
-                        ${food.preparation_time?`<span class="text-xs">Preparation Time : ${food.preparation_time} Min</span>`: ``}
-                        
                     </div>
+                </div>
+                <div class="actions ml-auto">
+                    <div class="small-desc text-sm text-gray-500"></div>
 
-                    <div class="actions">
-                        <div class="small-desc text-sm text-gray-500">
-                            ${food.is_veg? 'Veg': 'Non-Veg'}
-                        </div>
-
-                        ${food.is_available?`
-                            <div class="action-controls" data-food-id="${food.uid}">
-                                <button class="add-btn-small" data-food-id="${food.uid}">Add To Cart</button>
-                            </div>`:
-                        `<button class="btn-disabled" disabled>Not Available</button>`
-                        }
-                    </div>
-
+                    ${food.is_available?`
+                                                                    <div class="action-controls" data-food-id="${food.uid}">
+                                                                        <button class="add-btn-small" data-food-id="${food.uid}">Add To Cart</button>
+                                                                    </div>`:
+                    `<button class="btn-disabled" disabled>Not Available</button>`
+                    }
                 </div>
             </div>
         `;
@@ -311,9 +360,15 @@
             wrappers.forEach(wrapper => {
                 wrapper.innerHTML = `
                     <div class="qty-box" data-food-id="${foodId}">
-                        <button class="qty-minus" data-food-id="${foodId}" aria-label="decrease">-</button>
+                        <button class="qty-minus" data-food-id="${foodId}" aria-label="decrease"> 
+                            -
+                        </button>
+
                         <span class="qty-count">${cart[foodId] || 0}</span>
-                        <button class="qty-plus" data-food-id="${foodId}" aria-label="increase">+</button>
+
+                        <button class="qty-plus" data-food-id="${foodId}" aria-label="increase">
+                            +
+                        </button>
                     </div>
                 `;
             });
@@ -527,6 +582,66 @@
         document.getElementById("swMenuPopup").onclick = (e) => {
             if (e.target.id === "swMenuPopup") {
                 document.getElementById("swMenuPopup").style.display = "none";
+            }
+        };
+
+
+        window.openFoodPopup = function(food) {
+            const mainImage = food.images?.find(img => img.image_type === "main");
+            const imageUrl = mainImage?.image_url || "/images/placeholder.jpg";
+
+            document.getElementById("foodDetailContent").innerHTML = `
+                <img src="${imageUrl}" class="food-detail-img mb-3">
+                <div class="food-detail-title mb-1">${food.name}</div>
+
+                <div class="flex justify-between items-center mb-2">
+
+                    <div class="food-detail-price mb-2">
+                        ₹${food.discount_price ?? food.price}
+                        ${food.discount_price ? `<span class="line-through text-sm text-gray-400">${food.price}</span>` : ``}
+                    </div>
+
+                     ${food.is_available ? `
+                                                            <div class="action-controls" data-food-id="${food.uid}">
+                                                                ${cart[food.uid] ? `
+                                    <div class="qty-box">
+                                        <button class="qty-minus" data-food-id="${food.uid}">-</button>
+                                        <span class="qty-count">${cart[food.uid]}</span>
+                                        <button class="qty-plus" data-food-id="${food.uid}">+</button>
+                                    </div>
+                                ` : `
+                                    <button class="add-btn-small" data-food-id="${food.uid}">
+                                        Add To Cart
+                                    </button>
+                                `}
+                                                            </div>
+                                                    ` : `<button class="btn-disabled w-full">Not Available</button>`}
+
+                </div>
+
+                <div class="text-sm mb-2">
+                    ${food.is_veg ? '🟢 Veg' : '🔴 Non-Veg'}
+                    ${food.preparation_time ? ` • ${food.preparation_time} min` : ``}
+                </div>
+
+                ${food.description ? `<p class="food-detail-desc mt-3">${food.description}</p>` : ``}
+            `;
+
+            document.getElementById("foodDetailPopup").style.display = "flex";
+
+            // Disable background scroll
+            document.body.classList.add("no-scroll");
+        };
+
+        document.getElementById("closeFoodPopup").onclick = () => {
+            document.getElementById("foodDetailPopup").style.display = "none";
+            document.body.classList.remove("no-scroll");
+        };
+
+        document.getElementById("foodDetailPopup").onclick = (e) => {
+            if (e.target.id === "foodDetailPopup") {
+                document.getElementById("foodDetailPopup").style.display = "none";
+                document.body.classList.remove("no-scroll");
             }
         };
     </script>
