@@ -34,8 +34,6 @@
         @endif
     </div>
 
-
-
     <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
 
     <script type="module">
@@ -44,6 +42,14 @@
             showConfirmAlert,
             showAlert,
         } from '/js/httpClient.js';
+
+        const params = new URLSearchParams(window.location.search);
+        const searchValue = params.get("search"); // null if not exists
+
+        const searchBar = document.getElementById('search');
+        if (searchValue) {
+            searchBar.value = searchValue;
+        }
 
         document.getElementById("btnLogout").addEventListener("click", (event) => {
             showConfirmAlert("question", "Sure want to logout?")
@@ -73,4 +79,3 @@
 
 
 </header>
-

@@ -86,8 +86,6 @@
             border-bottom: none;
         }
 
-
-
         #menuFloatBtn {
             bottom: 30px !important;
             right: 20px !important;
@@ -463,7 +461,7 @@
                         </div>
                         <div>
                             <div class="price">₹${"" /* placeholder for spacing */}
-                                ${food.discount_price ? `${food.discount_price}<span class="line-through text-xs text-gray-400">${food.price}</span>`
+                                ${food.discount_price ? ` ${food.discount_price}  <span class="line-through text-xs text-gray-400"> ${food.price}</span>`
                                         :
                                         `<span>${food.price}</span>`
                                     }
@@ -478,9 +476,9 @@
                     <div class="small-desc text-sm text-gray-500"></div>
 
                     ${food.is_available?`
-                                                                                                                        <div class="action-controls" data-food-id="${food.uid}">
-                                                                                                                            <button class="add-btn-small" data-food-id="${food.uid}">Add To Cart</button>
-                                                                                                                        </div>`:
+                        <div class="action-controls" data-food-id="${food.uid}">
+                            <button class="add-btn-small" data-food-id="${food.uid}">Add To Cart</button>
+                        </div>`:
                     `<button class="btn-disabled" disabled>Not Available</button>`
                     }
                 </div>
@@ -595,6 +593,7 @@
         let menuFoodMap = {};
         let currentFilter = "all";
         let currentSort = "";
+        let currentSearch = "";
 
         // Load menus + foods together
         async function loadMenuFoods() {
@@ -744,13 +743,13 @@
 
                 <div class="flex justify-between items-center mb-2">
                     <div class="food-detail-price mb-2">
-                        ₹${food.discount_price ?? food.price}
-                        ${food.discount_price ? `<span class="line-through text-sm text-gray-400">${food.price}</span>` : ``}
+                        ₹${food.discount_price ?? food.price}  
+                        ${food.discount_price ? `<span class="line-through text-sm text-gray-400"> ${food.price}</span>` : ``}
                     </div>
 
                     ${food.is_available ? `
-                                            <div class="action-controls" data-food-id="${food.uid}">
-                                                ${cart[food.uid] ? `
+                                                                <div class="action-controls" data-food-id="${food.uid}">
+                                                                    ${cart[food.uid] ? `
                                     <div class="qty-box">
                                         <button class="qty-minus" data-food-id="${food.uid}">-</button>
                                         <span class="qty-count">${cart[food.uid]}</span>
@@ -761,8 +760,8 @@
                                         Add To Cart
                                     </button>
                                 `}
-                                                </div>
-                                        ` : `<button class="btn-disabled w-full">Not Available</button>`}
+                                                                    </div>
+                                                            ` : `<button class="btn-disabled w-full">Not Available</button>`}
 
                 </div>
 
@@ -799,6 +798,13 @@
 
             Object.values(menuFoodMap).forEach(group => {
                 let foods = [...group.foods];
+
+                if (currentSearch) {
+                    foods = foods.filter(f =>
+                        f.name.toLowerCase().includes(currentSearch)
+                    );
+                }
+
 
                 // -------- FILTER --------
                 if (currentFilter === "veg") {
@@ -863,6 +869,24 @@
             currentSort = e.target.value;
             renderFoods();
         };
+
+        ///////////////////////////////////////////////////////////////////
+
+        document.getElementById('search').addEventListener('input', (e) => {
+            currentSearch = e.target.value.toLowerCase().trim();
+
+            const params = new URLSearchParams(window.location.search);
+            if (currentSearch) {
+                params.set("search", currentSearch);
+            } else {
+                params.delete("search");
+            }
+
+            const newUrl = `${window.location.pathname}?${params.toString()}`;
+            window.history.replaceState({}, "", newUrl);
+
+            renderFoods();
+        });
     </script>
 
 @endsection
