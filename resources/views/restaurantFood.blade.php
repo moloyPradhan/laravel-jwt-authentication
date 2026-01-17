@@ -427,14 +427,14 @@
                         </div>
                         <div>
                             <div class="price">₹${"" /* placeholder for spacing */}
-                                ${food.discount_price ? 
-                                    `${food.discount_price}
-                                                                                                                    <span class="line-through text-xs text-gray-400">${food.price}</span>`
+                                ${food.discount_price ? `${food.discount_price}<span class="line-through text-xs text-gray-400">${food.price}</span>`
                                         :
                                         `<span>${food.price}</span>`
                                     }
                             </div>
-                            ${food.preparation_time?`<span class="text-xs">${food.is_veg? '<span class="food-type veg"></span>': '<span class="food-type non-veg"></span>'} • ${food.preparation_time} Min</span>`: ``}
+
+                            <span class="text-xs">${food.is_veg? '<span class="food-type veg"></span>': '<span class="food-type non-veg"></span>'}
+                            ${food.preparation_time?` • ${food.preparation_time} Min</span>`: ``}
                         </div>
                     </div>
                 </div>
@@ -732,7 +732,7 @@
 
                 <div class="text-sm mb-2">
                     ${food.is_veg ? `<span class="food-type veg"></span>` : `<span class="food-type non-veg"></span>`}
-                    ${food.preparation_time ? ` • ${food.preparation_time} min` : ``}
+                    ${food.preparation_time ? ` • ${food.preparation_time} Min` : ``}
                 </div>
 
                 ${food.description ? `<p class="food-detail-desc mt-3">${food.description}</p>` : ``}
