@@ -2,288 +2,281 @@
 
 @section('title', 'Cart')
 
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
 @section('content')
 
-    <!-- Breadcrumb -->
-    <nav id="restaurantBreadcrumb" class="max-w-3xl mx-auto mb-3 hidden">
-        <ol class="flex items-center space-x-2 text-sm text-gray-600">
-            <li>
-                <a href="{{ route('homePage') }}" class="hover:text-gray-800 font-medium">Home</a>
-            </li>
-            <li>›</li>
-            <li>
-                <a href="{{ route('restautantPage') }}" class="hover:text-gray-800 font-medium">
-                    Restaurant
-                </a>
-            </li>
-            <li>›</li>
-            <li>
-                <a id="restaurantBackLink" href="#" class="hover:text-gray-800 font-medium">
-                    Restaurant
-                </a>
-            </li>
-            <li>›</li>
-            <li class="text-gray-800">Cart</li>
-        </ol>
-    </nav>
+    <div class="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
 
-    <!-- Restaurant Info -->
-    <div id="restaurantInfo" class="max-w-3xl mx-auto mb-4 hidden">
-        <div class="bg-white rounded-xl shadow p-4 space-y-1">
-            <h2 id="restaurantName" class="text-lg font-semibold text-gray-800"></h2>
-            <p id="restaurantAddress" class="text-sm text-gray-600"></p>
-        </div>
-    </div>
-
-    <!-- Cart List -->
-    <div class="max-w-3xl mx-auto">
-
-        <!-- Skeleton -->
-        <div id="cartSkeleton" class="space-y-4">
-            @for ($i = 0; $i < 3; $i++)
-                <div class="animate-pulse bg-white rounded-xl shadow p-4 flex justify-between">
-                    <div class="space-y-2">
-                        <div class="h-4 w-40 bg-gray-300 rounded"></div>
-                        <div class="h-3 w-24 bg-gray-200 rounded"></div>
-                    </div>
-                    <div class="h-4 w-16 bg-gray-300 rounded"></div>
-                </div>
-            @endfor
+        <!-- ================= LEFT : DELIVERY ================= -->
+        <div class="md:col-span-1">
+            <div id="deliverySection" class="bg-white rounded-xl shadow p-4 space-y-4"></div>
         </div>
 
-        <!-- Items -->
-        <div id="cartItemsContainer" class="space-y-4 hidden min-h-[40vh] max-h-[40vh] overflow-y-auto pr-1">
-        </div>
-    </div>
+        <!-- ================= RIGHT : CART ================= -->
+        <div class="md:col-span-2 space-y-4">
 
-    <!-- Sticky Footer -->
-    <div class="sticky bottom-0 bg-white border-t mt-6">
-        <div class="max-w-3xl mx-auto p-4 space-y-3">
-
-            <div class="flex justify-between items-center">
-                <div>
-                    <p class="text-sm text-gray-500">
-                        <span id="itemCount">0</span> Items
-                    </p>
-                    <p class="text-lg font-semibold">Total</p>
-                </div>
-                <p id="cartTotal" class="text-xl font-bold">₹0</p>
+            <div id="restaurantInfo" class="bg-white rounded-xl shadow p-4 hidden">
+                <h2 id="restaurantName" class="text-lg font-semibold"></h2>
             </div>
 
-            @if ($isLoggedIn)
+            <div id="cartItemsContainer" class="space-y-4 bg-white rounded-xl shadow p-4 min-h-[40vh] hidden"></div>
+
+            <div id="cartSkeleton" class="bg-white p-4 rounded-xl shadow h-24 animate-pulse"></div>
+
+            <div class="bg-white rounded-xl shadow p-4 sticky bottom-0">
+                <div class="flex justify-between mb-3">
+                    <p><span id="itemCount">0</span> items</p>
+                    <p id="cartTotal" class="font-bold">₹0</p>
+                </div>
+
                 <button id="checkoutBtn"
-                    class="w-full bg-green-600 hover:bg-green-700 text-white py-3 rounded-lg font-semibold transition disabled:opacity-50"
-                    disabled>
+                    class="w-full bg-green-600 text-white py-3 rounded-lg font-semibold disabled:opacity-50" disabled>
                     Proceed to Checkout
                 </button>
-            @else
-                <button onclick="window.location.href='{{ route('loginPage') }}?source=cart'"
-                    class="w-full bg-gray-900 hover:bg-gray-800 text-white py-3 rounded-lg font-semibold transition">
-                    Proceed to Login
-                </button>
-            @endif
-
+            </div>
         </div>
     </div>
 
-    <!-- JS -->
+    <!-- ================= ADD ADDRESS MODAL ================= -->
+    <div id="addressModal" class="fixed inset-0 bg-black/60 z-[9999] hidden flex items-center justify-center">
+
+        <div class="bg-white rounded-xl w-[95%] max-w-md p-4 space-y-3">
+            <div class="flex justify-between items-center">
+                <h3 class="font-semibold">Add Delivery Address</h3>
+                <button onclick="closeAddressModal()">✕</button>
+            </div>
+
+            <input id="addrLine" class="w-full border p-2 rounded" placeholder="Address line">
+
+            <input id="addrLocality" class="w-full border p-2 rounded" placeholder="Locality">
+
+            <input id="addrPincode" class="w-full border p-2 rounded" placeholder="Pincode">
+
+            <div id="map" class="h-56 rounded"></div>
+
+            <button onclick="saveDemoAddress()" class="w-full bg-green-600 text-white py-2 rounded">
+                Save Address
+            </button>
+        </div>
+    </div>
+
     <script type="module">
         import {
             httpRequest
         } from "/js/httpClient.js";
 
-        function cartItemRow(item) {
-            const name = item.food?.name ?? "Food Item";
-            const price = Number(item.food?.discount_price ?? item.food?.price ?? 0);
-            const qty = Number(item.quantity ?? 0);
-            const total = price * qty;
+        const isLoggedIn = @json($isLoggedIn);
 
-            return `
-                <div class="flex items-center justify-between bg-white rounded-xl shadow-sm p-4">
-                    <div>
-                        <p class="font-semibold text-gray-800">${name} [${item?.food?.is_veg? "Veg":"Non-Veg"}]</p>
-                        <p class="text-sm text-gray-500">₹${price} × ${qty}</p>
-                        <p class="text-sm text-gray-500">Prepare Time : ${item?.food?.preparation_time} Min</p>
-                        <p class="text-sm text-gray-500">${item?.food?.is_available?"": "Not Available"}</p>
-                    </div>
+        let selectedAddressId = null;
+        let hasCartItems = false;
 
-                    <div class="flex items-center gap-4">
-                        <p class="font-bold">₹${total}</p>
-                        <button
-                            data-cart-uid="${item.uid}"
-                            class="remove-cart-item text-red-500 hover:text-red-700"
-                            title="Remove">
-                            🗑️
-                        </button>
-                    </div>
-                </div>
-            `;
-        }
-
-        let totalAmount = 0;
-        async function fetchCartItems() {
-            try {
-                const res = await httpRequest(`/api/cart-items`);
-                const restaurant = res?.data?.restaurant || null;
-                const items = res?.data?.items || [];
-
-                let html = "";
-
-                let totalItems = 0;
-                totalAmount = 0;
-
-                if (restaurant) {
-                    const address = restaurant.addresses?.[0];
-
-                    document.getElementById("restaurantName").innerText = restaurant.name;
-                    document.getElementById("restaurantBackLink").innerText = restaurant.name;
-
-                    document.getElementById("restaurantAddress").innerText = address ?
-                        `${address.address_line_1}, ${address.city}, ${address.postal_code}` :
-                        restaurant.description || "";
-
-                    document.getElementById("restaurantBackLink").href =
-                        `/restaurants/${restaurant.uid}`;
-
-                    document.getElementById("restaurantInfo").classList.remove("hidden");
-                    document.getElementById("restaurantBreadcrumb").classList.remove("hidden");
-                }
-
-                items.forEach(item => {
-                    const price = Number(item.food?.discount_price ?? item.food?.price ?? 0);
-                    const qty = Number(item.quantity ?? 0);
-
-                    html += cartItemRow(item);
-                    totalAmount += price * qty;
-                    totalItems++;
-                });
-
-                document.getElementById("cartSkeleton").classList.add("hidden");
-                document.getElementById("cartItemsContainer").classList.remove("hidden");
-
-                document.getElementById("cartItemsContainer").innerHTML =
-                    html || `<p class="text-center text-gray-500 py-10">Your cart is empty</p>`;
-
-                document.getElementById("cartTotal").innerText = `₹${totalAmount}`;
-                document.getElementById("itemCount").innerText = totalItems;
-
-                const checkoutBtn = document.getElementById("checkoutBtn");
-                if (checkoutBtn) {
-                    checkoutBtn.disabled = totalItems === 0;
-                }
-
-            } catch (e) {
-                console.error(e);
+        /* ================= DEMO ADDRESSES ================= */
+        let demoAddresses = [{
+                id: 1,
+                address_line_1: "221B Baker Street",
+                locality: "MG Road",
+                city: "Bengaluru",
+                pincode: "560001",
+                lat: 12.9716,
+                lng: 77.5946
+            },
+            {
+                id: 2,
+                address_line_1: "Sai Residency, Flat 402",
+                locality: "Hitech City",
+                city: "Hyderabad",
+                pincode: "500081",
+                lat: 17.4483,
+                lng: 78.3915
             }
-        }
+        ];
 
-        fetchCartItems();
+        /* ================= DELIVERY ================= */
+        function renderDelivery(addresses) {
 
-        document.addEventListener("click", async (e) => {
-            const btn = e.target.closest(".remove-cart-item");
-            if (!btn) return;
+            const el = document.getElementById("deliverySection");
 
-            const cartItemId = btn.dataset.cartUid;
-            await removeCartItem(cartItemId);
-        });
-
-
-        async function removeCartItem(cartItemId) {
-            try {
-                const res = await httpRequest(`/api/cart-items/${cartItemId}`, {
-                    method: "DELETE",
-                });
-
-                fetchCartItems();
-
-            } catch (error) {
-                console.log(error);
+            if (!isLoggedIn) {
+                el.innerHTML = `
+            <p class="text-gray-600">Login to add delivery location</p>
+            <a href="{{ route('loginPage') }}?source=cart"
+                class="block bg-gray-900 text-white text-center py-2 rounded">
+                Login
+            </a>`;
+                return;
             }
 
-        }
+            let html = `<h3 class="font-semibold">Delivery Address</h3>`;
 
-        //////////////////////////////////////////////////////
+            addresses.forEach(addr => {
+                html += `
+            <label class="block border rounded p-3 cursor-pointer">
+                <input type="radio" name="address"
+                    class="mr-2"
+                    value="${addr.id}"
+                    ${selectedAddressId == addr.id ? "checked" : ""}>
+                <span class="font-medium">${addr.locality}</span>
+                <p class="text-sm text-gray-600">
+                    ${addr.address_line_1}, ${addr.city} - ${addr.pincode}
+                </p>
+            </label>`;
+            });
 
-        async function verifyPayment(data) {
-            const order_id = data.razorpay_order_id;
-            const payment_id = data.razorpay_payment_id;
-            const signature = data.razorpay_signature;
+            html += `
+        <button onclick="openAddressModal()"
+            class="w-full border py-2 rounded text-sm">
+            + Add New Address
+        </button>`;
 
-            try {
-                const res = await httpRequest(`/api/orders/verify-payment`, {
-                    method: "POST",
-                    body: {
-                        order_id,
-                        payment_id,
-                        signature,
-                    }
-                });
+            el.innerHTML = html;
 
-                location.href = @json(route('homePage'));
-
-            } catch (error) {
-                console.log(error);
-            }
-        }
-
-        async function checkoutOrder() {
-
-            const checkoutBtn = document.getElementById('checkoutBtn');
-            checkoutBtn.setAttribute('disabled', true);
-
-            try {
-                const res = await httpRequest(`api/orders/create`, {
-                    method: "POST",
-                });
-
-                const {
-                    key,
-                    amount,
-                    currency,
-                    order_id
-                } = res?.data?.payload;
-
-                const options = {
-                    key: key,
-                    amount: amount,
-                    currency: currency,
-                    name: "FulBite",
-                    description: "Checkout Order",
-                    order_id: order_id,
-
-                    handler: function(response) {
-                        console.log("Payment Success:", response);
-                        verifyPayment(response)
-                    },
-
-                    prefill: {
-                        name: "Customer",
-                        email: "customer@email.com",
-                        contact: "9999999999"
-                    },
-
-                    theme: {
-                        color: "#0f172a"
-                    }
+            document.querySelectorAll('input[name="address"]').forEach(radio => {
+                radio.onchange = e => {
+                    selectedAddressId = e.target.value;
+                    updateCheckoutState();
                 };
+            });
 
-                const rzp1 = new Razorpay(options);
-
-                rzp1.on('payment.failed', function(response) {
-                    console.log("Payment Failed:", response.error);
-                });
-
-                rzp1.open();
-
-            } catch (error) {
-                console.error(error);
-            } finally {
-                checkoutBtn.removeAttribute('disabled');
+            if (!selectedAddressId && addresses.length) {
+                selectedAddressId = addresses[0].id;
             }
         }
 
-        document.getElementById('checkoutBtn')
-            .addEventListener('click', checkoutOrder);
+        /* ================= CART ================= */
+        function cartItemRow(item) {
+            const price = item.food.discount_price ?? item.food.price;
+            return `
+        <div class="flex justify-between border-b pb-2">
+            <p>${item.food.name}</p>
+            <p>₹${price * item.quantity}</p>
+        </div>`;
+        }
+
+        async function fetchCart() {
+
+            const res = await httpRequest(`/api/cart-items`);
+            const items = res.data.items || [];
+            const restaurant = res.data.restaurant;
+
+            hasCartItems = items.length > 0;
+
+            let html = "";
+            let total = 0;
+
+            items.forEach(i => {
+                html += cartItemRow(i);
+                total += (i.food.discount_price ?? i.food.price) * i.quantity;
+            });
+
+            cartItemsContainer.innerHTML =
+                html || `<p class="text-center text-gray-500">Your cart is empty</p>`;
+
+            itemCount.innerText = items.length;
+            cartTotal.innerText = `₹${total}`;
+
+            cartSkeleton.classList.add("hidden");
+            cartItemsContainer.classList.remove("hidden");
+
+            if (restaurant) {
+                restaurantName.innerText = restaurant.name;
+
+                
+                restaurantInfo.classList.remove("hidden");
+            }
+
+            renderDelivery(demoAddresses);
+            updateCheckoutState();
+        }
+
+        fetchCart();
+
+        /* ================= CHECKOUT STATE ================= */
+        function updateCheckoutState() {
+            checkoutBtn.disabled = !(isLoggedIn && hasCartItems && selectedAddressId);
+        }
+
+        /* ================= MAP ================= */
+        let map, marker, lat, lng;
+
+        window.openAddressModal = () => {
+            addressModal.classList.remove("hidden");
+            setTimeout(initMap, 200);
+        };
+
+        window.closeAddressModal = () => {
+            addressModal.classList.add("hidden");
+        };
+
+        function initMap() {
+
+            if (map) return;
+
+            navigator.geolocation.getCurrentPosition(pos => {
+
+                lat = pos.coords.latitude;
+                lng = pos.coords.longitude;
+
+                map = L.map('map').setView([lat, lng], 15);
+
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    attribution: '© OpenStreetMap'
+                }).addTo(map);
+
+                marker = L.marker([lat, lng], {
+                    draggable: true
+                }).addTo(map);
+
+                marker.on('dragend', e => {
+                    lat = e.target.getLatLng().lat;
+                    lng = e.target.getLatLng().lng;
+                });
+            });
+        }
+
+        /* ================= SAVE DEMO ADDRESS ================= */
+        window.saveDemoAddress = () => {
+
+            demoAddresses.push({
+                id: Date.now(),
+                address_line_1: addrLine.value,
+                locality: addrLocality.value,
+                city: "Demo City",
+                pincode: addrPincode.value,
+                lat,
+                lng
+            });
+
+            closeAddressModal();
+            renderDelivery(demoAddresses);
+        };
+
+        /* ================= CHECKOUT ================= */
+        checkoutBtn.onclick = async () => {
+
+            const res = await httpRequest(`/api/orders/create`, {
+                method: "POST",
+                body: {
+                    address_id: selectedAddressId
+                }
+            });
+
+            const {
+                key,
+                amount,
+                currency,
+                order_id
+            } = res.data.payload;
+
+            new Razorpay({
+                key,
+                amount,
+                currency,
+                order_id,
+                handler: () => location.href = @json(route('homePage'))
+            }).open();
+        };
     </script>
 
 @endsection
