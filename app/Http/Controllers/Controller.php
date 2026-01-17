@@ -9,6 +9,8 @@ use Illuminate\Routing\Controller as BaseController;
 use Illuminate\Http\Request;
 use App\Helpers\AuthHelper;
 
+use App\Models\Restaurant;
+
 class Controller extends BaseController
 {
     use AuthorizesRequests, ValidatesRequests;
@@ -120,8 +122,14 @@ class Controller extends BaseController
 
     public function restaurantFoodsPage($restaurantId)
     {
+        $restaurant = Restaurant::with('addresses')->where('uid', $restaurantId)->firstOrFail();
+
+        // dd($restaurant);
+
+
         return view('restaurantFood', [
             'restaurantId' => $restaurantId,
+            'restaurant'   => $restaurant,
         ]);
     }
 

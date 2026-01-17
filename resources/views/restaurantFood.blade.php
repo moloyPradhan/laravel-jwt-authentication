@@ -349,11 +349,47 @@
                             d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
                             clip-rule="evenodd"></path>
                     </svg>
-                    <span class="ml-1 text-sm font-medium text-gray-500 md:ml-2">Foods</span>
+                    <span class="ml-1 text-sm font-medium text-gray-500 md:ml-2">{{ $restaurant->name }}</span>
                 </div>
             </li>
         </ol>
     </nav>
+
+
+    <div class="bg-white rounded-xl shadow-sm p-5 mb-6 border border-gray-100">
+        <div class="flex flex-col md:flex-row md:items-start md:justify-between gap-6">
+
+            <!-- Restaurant Info -->
+            <div class="flex-1">
+                <h1 class="text-2xl font-semibold text-gray-900">
+                    {{ $restaurant->name }}
+                </h1>
+
+                <p class="text-sm text-gray-500 mt-1">
+                    {{ $restaurant->description }}
+                </p>
+
+                <div class="text-sm text-gray-600 mt-3 space-y-1">
+                    <p>📞 {{ $restaurant->phone }}</p>
+                    <p>📧 {{ $restaurant->email }}</p>
+                </div>
+            </div>
+
+            <!-- Address -->
+            @if ($restaurant->addresses->isNotEmpty())
+                @php $address = $restaurant->addresses->first(); @endphp
+
+                <div class="md:max-w-sm text-sm text-gray-600 bg-gray-50 border border-gray-200 rounded-lg p-3">
+                    <p class="leading-relaxed">
+                        {{ $address->address_line_1 }},
+                        {{ $address->address_line_2 }},
+                        {{ $address->city }},
+                        {{ $address->state }} - {{ $address->postal_code }}
+                    </p>
+                </div>
+            @endif
+        </div>
+    </div>
 
     <div class="flex flex-wrap items-center gap-3 mb-6">
 
@@ -442,9 +478,9 @@
                     <div class="small-desc text-sm text-gray-500"></div>
 
                     ${food.is_available?`
-                                                                                                        <div class="action-controls" data-food-id="${food.uid}">
-                                                                                                            <button class="add-btn-small" data-food-id="${food.uid}">Add To Cart</button>
-                                                                                                        </div>`:
+                                                                                                                        <div class="action-controls" data-food-id="${food.uid}">
+                                                                                                                            <button class="add-btn-small" data-food-id="${food.uid}">Add To Cart</button>
+                                                                                                                        </div>`:
                     `<button class="btn-disabled" disabled>Not Available</button>`
                     }
                 </div>
@@ -713,8 +749,8 @@
                     </div>
 
                     ${food.is_available ? `
-                            <div class="action-controls" data-food-id="${food.uid}">
-                                ${cart[food.uid] ? `
+                                            <div class="action-controls" data-food-id="${food.uid}">
+                                                ${cart[food.uid] ? `
                                     <div class="qty-box">
                                         <button class="qty-minus" data-food-id="${food.uid}">-</button>
                                         <span class="qty-count">${cart[food.uid]}</span>
@@ -725,8 +761,8 @@
                                         Add To Cart
                                     </button>
                                 `}
-                                </div>
-                        ` : `<button class="btn-disabled w-full">Not Available</button>`}
+                                                </div>
+                                        ` : `<button class="btn-disabled w-full">Not Available</button>`}
 
                 </div>
 
