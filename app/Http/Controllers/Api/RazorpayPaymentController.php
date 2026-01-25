@@ -62,6 +62,12 @@ class RazorpayPaymentController extends Controller
 
     public function createOrder(Request $request)
     {
+        $validated = $request->validate([
+            'address_id' => 'required',
+        ]);
+
+        $address_id = $validated['address_id'];
+
         $user = $request->user();
         $user_uid = $user->uid;
 
@@ -95,6 +101,7 @@ class RazorpayPaymentController extends Controller
             'create_order' => [
                 'user_uid' => $user_uid,
                 'amount'   => $totalAmount,
+                'address_id' => $address_id
             ],
             'clear_cart'   => [
                 'user_uid' => $user_uid
@@ -204,7 +211,9 @@ class RazorpayPaymentController extends Controller
 
     protected function createOrderAfterPayment($data)
     {
-        $user_uid = $data['user_uid'];
+        $user_uid   = $data['user_uid'];
+        // $address_id = $data['address_id'];
+
         $items = Cart::with('food')
             ->where('user_uid', $user_uid)
             ->get();
@@ -238,9 +247,10 @@ class RazorpayPaymentController extends Controller
 
             // Create Order
             Order::create([
-                'uid'      => $order_uid,
-                'user_uid' => $user_uid,
-                'amount'   => $totalAmount,
+                'uid'         => $order_uid,
+                'user_uid'    => $user_uid,
+                'address_uid' => 'ZWJllCR8',
+                'amount'      => $totalAmount,
             ]);
 
             OrderItems::insert($orderItems);

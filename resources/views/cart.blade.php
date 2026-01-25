@@ -73,25 +73,18 @@
         let hasCartItems = false;
 
         /* ================= DEMO ADDRESSES ================= */
-        let demoAddresses = [{
-                id: 1,
-                address_line_1: "221B Baker Street",
-                locality: "MG Road",
-                city: "Bengaluru",
-                pincode: "560001",
-                lat: 12.9716,
-                lng: 77.5946
-            },
-            {
-                id: 2,
-                address_line_1: "Sai Residency, Flat 402",
-                locality: "Hitech City",
-                city: "Hyderabad",
-                pincode: "500081",
-                lat: 17.4483,
-                lng: 78.3915
+
+        async function fetchAddresses() {
+
+            const res = await httpRequest(`/api/users/addresses`);
+            const addresses = res.data.addresses || [];
+
+            if (addresses) {
+                renderDelivery(addresses)
             }
-        ];
+        }
+
+        fetchAddresses();
 
         /* ================= DELIVERY ================= */
         function renderDelivery(addresses) {
@@ -100,35 +93,35 @@
 
             if (!isLoggedIn) {
                 el.innerHTML = `
-            <p class="text-gray-600">Login to add delivery location</p>
-            <a href="{{ route('loginPage') }}?source=cart"
-                class="block bg-gray-900 text-white text-center py-2 rounded">
-                Login
-            </a>`;
+                    <p class="text-gray-600">Login to add delivery location</p>
+                    <a href="{{ route('loginPage') }}?source=cart"
+                        class="block bg-gray-900 text-white text-center py-2 rounded">
+                        Login
+                    </a>`;
                 return;
             }
 
-            let html = `<h3 class="font-semibold">Delivery Address</h3>`;
+            let html = `<h3 class="font-semibold">Delivery Addresses</h3>`;
 
             addresses.forEach(addr => {
                 html += `
-            <label class="block border rounded p-3 cursor-pointer">
-                <input type="radio" name="address"
-                    class="mr-2"
-                    value="${addr.id}"
-                    ${selectedAddressId == addr.id ? "checked" : ""}>
-                <span class="font-medium">${addr.locality}</span>
-                <p class="text-sm text-gray-600">
-                    ${addr.address_line_1}, ${addr.city} - ${addr.pincode}
-                </p>
-            </label>`;
+                    <label class="block border rounded p-3 cursor-pointer">
+                        <input type="radio" name="address"
+                            class="mr-2"
+                            value="${addr.uid}"
+                            ${addr.is_default ? "checked" : ""}>
+                        <span class="font-medium">${addr.label}</span>
+                        <p class="text-sm text-gray-600">
+                            ${addr.address_line_1}, ${addr.city} - ${addr.postal_code}
+                        </p>
+                    </label>`;
             });
 
             html += `
-        <button onclick="openAddressModal()"
-            class="w-full border py-2 rounded text-sm">
-            + Add New Address
-        </button>`;
+                <button onclick="openAddressModal()"
+                    class="w-full border py-2 rounded text-sm">
+                    + Add New Address
+                </button>`;
 
             el.innerHTML = html;
 
@@ -140,7 +133,7 @@
             });
 
             if (!selectedAddressId && addresses.length) {
-                selectedAddressId = addresses[0].id;
+                selectedAddressId = addresses[0].uid;
             }
         }
 
@@ -148,10 +141,10 @@
         function cartItemRow(item) {
             const price = item.food.discount_price ?? item.food.price;
             return `
-        <div class="flex justify-between border-b pb-2">
-            <p>${item.food.name}</p>
-            <p>₹${price * item.quantity}</p>
-        </div>`;
+            <div class="flex justify-between border-b pb-2">
+                <p>${item.food.name}</p>
+                <p>₹${price * item.quantity}</p>
+            </div>`;
         }
 
         async function fetchCart() {
@@ -182,11 +175,10 @@
             if (restaurant) {
                 restaurantName.innerText = restaurant.name;
 
-                
+
                 restaurantInfo.classList.remove("hidden");
             }
 
-            renderDelivery(demoAddresses);
             updateCheckoutState();
         }
 
@@ -274,7 +266,10 @@
                 amount,
                 currency,
                 order_id,
-                handler: () => location.href = @json(route('homePage'))
+                handler: (response) => {
+
+                    location.href = @json(route('homePage'))
+                }
             }).open();
         };
     </script>
